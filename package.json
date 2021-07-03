@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "start": "nodemon server/server.js"
+    "start": "nodemon server/server.js",
+    "prebuild": "rimraf dist/{js,css,fonts,img}",
+    "build": "cross-env VUE_ENV=client vue-cli-service build --no-clean && cross-env VUE_ENV=server vue-cli-service build --no-clean",
+    "postbuild": "rimraf dist/index.html"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
@@ -17,8 +19,11 @@
     "roboto-fontface": "*",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
+    "vue-server-renderer": "^2.6.14",
     "vuetify": "^2.4.0",
-    "vuex": "^3.4.0"
+    "vuex": "^3.4.0",
+    "vuex-router-sync": "^5.0.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -27,8 +32,10 @@
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "babel-eslint": "^10.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "rimraf": "^3.0.2",
     "vue-cli-plugin-vuetify": "~2.4.1",
     "vue-template-compiler": "^2.6.11"
   }
