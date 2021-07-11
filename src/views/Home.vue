@@ -14,13 +14,19 @@
         <v-btn @click="progressTest2">FINISH</v-btn>
         <v-btn @click="progressTest3">FAIL</v-btn>
       </div>
+      <h1>Notify 테스트</h1>
+      <div>
+        <v-btn @click="notifyTest1">Alert</v-btn>
+        <v-btn @click="notifyTest2">Confirm</v-btn>
+        <v-btn @click="notifyTest3">Prompt</v-btn>
+      </div>
   </div>
 </template>
 
 <script>
 
-
   export default {
+  
     name: 'Home',
     methods :{
       toastTest1() {
@@ -47,6 +53,18 @@
       progressTest3() {
         this.$Progress.fail()
       },
+      async notifyTest1(){
+        const res = await this.$ezNotify.alert('경고', '안내', {icon : "mdi-alert"});
+        console.log(res);
+      },
+      async notifyTest2(){
+        const res = await this.$ezNotify.confirm('질문에 응답하세요.');
+        console.log(res);
+      },
+      async notifyTest3(){
+        const res = await this.$ezNotify.prompt('좋아하는 과일은?', '머가 좋아?', {icon : "mdi-alert", text: '기본 문자'});
+        console.log(res);
+      }
     }
 
   }
