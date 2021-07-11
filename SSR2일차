@@ -1,0 +1,33 @@
+순서 
+1) yarn add express dotenv
+ --> express, dotenv 설치
+
+2) .gitigonore .env 추가
+
+3) server 폴더 생성
+
+4) server.js 생성
+
+5)
+
+mysql user생성 및 권한부여
+
+nodemon 환경 설정 
+
+.env DB 정보 설정
+
+mysql 설치
+--> yarn add mysql2
+
+* DB 설정
+CREATE USER 'bnbhome'@'%' IDENTIFIED BY '12345';
+
+* DB 스키마 생성
+CREATE DATABASE bnbhome1 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+*사용자에게 권한부여
+GRANT ALL PRIVILEGES ON 디비명.테이블 TO 'bnbhome'@'%' WITH GRANT OPTION;
+ -> GRANT ALL PRIVILEGES ON bnbhome.* TO 'bnbhome'@'%' WITH GRANT OPTION;
+
+* 사용자 변경 반영
+FLUSH PRIVILEGES; 

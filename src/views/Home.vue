@@ -1,6 +1,13 @@
 <template>
   <div>
-      배포 테스트
+    <h1>토스트 테스트</h1>
+      <div>
+        <v-btn @click="toastTest1">토스트 Info</v-btn>
+        <v-btn @click="toastTest2">토스트 success</v-btn>
+        <v-btn @click="toastTest3">토스트 error</v-btn>
+        <v-btn @click="toastTest4">토스트 warning</v-btn>
+        <v-btn @click="toastTest5">전역 에러test</v-btn> 
+      </div>
   </div>
 </template>
 
@@ -9,6 +16,23 @@
 
   export default {
     name: 'Home',
+    methods :{
+      toastTest1() {
+        this.$toast.info('안내 입니다.');
+      },
+      toastTest2() {
+        this.$toast.success('success.');
+      },
+      toastTest3() {
+        this.$toast.error('error.');
+      },
+      toastTest4() {
+        this.$toast.warning('warning.');
+      },
+      toastTest5() {
+        throw new Error('에러가 발생!');
+      }
+    }
 
   }
 </script>
