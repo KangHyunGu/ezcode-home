@@ -28,6 +28,16 @@
   export default {
   
     name: 'Home',
+    data() {
+      return {
+        title : 'My App'
+      }
+    },
+
+    title() {
+      return this.title
+    },
+
     methods :{
       toastTest1() {
         this.$toast.info('안내 입니다.');
