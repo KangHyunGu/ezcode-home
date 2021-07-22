@@ -61,5 +61,7 @@ module.exports = {
     },
 
     // ESLine load Skip
+    // 개발 중 Lint-on-save eslint-loader는 기본적으로 활성화되어 있음. 
+    // 다음 lintOnSave옵션을 사용하여 비활성화할 수 있습니다 vue.config.js.
     lintOnSave: false
 }
