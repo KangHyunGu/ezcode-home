@@ -50,4 +50,16 @@ const cilentConfig = {
 
 module.exports = {
     configureWebpack: process.env.VUE_ENV === 'server' ? serverConfig : cilentConfig,
+
+    // ESLint Error(router.index (from, to) error )
+    // Vue CLI 3 버전 후반대부터 현재 4 버전까지 ESLint 에러를 
+    // 이제 화면에까지 노출시키고 있음. 
+    // 해당 ESLint를 다시 예전처럼 
+    // 명령어 입력 창 레벨로 내릴거면 `vue.config.js` 파일에 아래 내용을 입력
+    devServer: {
+        overlay: false
+    },
+
+    // ESLine load Skip
+    lintOnSave: false
 }
