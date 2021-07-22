@@ -39,7 +39,7 @@
       return this.title
     },
 
-    beforeCreate() {
+    beforeCreate() { 
        console.log('Home.vue beforeCreate')
     },
 
