@@ -21,8 +21,8 @@ export default {
 		...mapActions('user', ['duplicateCheck']),
 		async checkId(id) {
 			console.log('id : ' + id); 
-			this.duplicateCheck({field: 'mb_id', value: id});
-			return {cnt : 0};
+			const data = await this.duplicateCheck({field: 'mb_id', value: id});
+			return data;
 		}
 	}
 }

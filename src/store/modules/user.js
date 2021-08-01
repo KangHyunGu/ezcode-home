@@ -19,6 +19,6 @@ export const actions = {
     async duplicateCheck(ctx, {field, value}) {
         const { $axios } = Vue.prototype;
         const data = await $axios.get(`/api/member/duplicateCheck/${field}/${value}`)
-        console.log(data);
+        return data;
     }
 };
