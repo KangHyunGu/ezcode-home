@@ -8,6 +8,17 @@ const lib = {
 			result[key] = lib.deepCopy(obj[key]);
 		}
 		return result;
+	},
+	//args 가변 인자를 받게 다는 의미
+	modelCall : async (fn, ...args) => {
+		try{
+			const result = await fn(...args);
+			return result;
+		} catch(e) {
+			console.trace(e)
+			return { err : e.message}
+
+		}
 	}
 }
 
