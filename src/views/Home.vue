@@ -20,6 +20,12 @@
         <v-btn @click="notifyTest2">Confirm</v-btn>
         <v-btn @click="notifyTest3">Prompt</v-btn>
       </div>
+        <h1>Axios 테스트</h1>
+      <div>
+        <v-btn @click="axiosTest1">Test</v-btn>
+        <v-btn @click="axiosTest2">Error Test</v-btn>    
+      </div>
+
   </div>
 </template>
 
@@ -75,6 +81,14 @@
       async notifyTest3(){
         const res = await this.$ezNotify.prompt('좋아하는 과일은?', '머가 좋아?', {icon : "mdi-alert", text: '기본 문자'});
         console.log(res);
+      },
+      async axiosTest1(){
+        const result = await this.$axios.get('/api/member/test'); 
+        console.log(result);
+      },
+      async axiosTest2(){
+        const result = await this.$axios.get('/api/err/test'); 
+        console.log(result);
       }
     }
 
