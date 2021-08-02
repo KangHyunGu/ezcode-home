@@ -18,6 +18,7 @@ const rules = {
 		const defaultOptions = {
 			label : '아이디',
 			len : 3,
+			info : null,
 			required : true,
 		};
 		const opt = Object.assign(defaultOptions, options);
@@ -26,7 +27,59 @@ const rules = {
 			arr.push(rules.require(opt));
 		}
 		arr.push(rules.min(opt));
-		arr.push(rules.alphaNum());
+		return arr;
+	},
+
+	name(options) {
+		const defaultOptions = {
+			label : '이름',
+			len : 2,
+			info : null,
+			required : true,
+		};
+		const opt = Object.assign(defaultOptions, options);
+		const arr = [];
+		if(opt.required) {
+			arr.push(rules.require(opt));
+		}
+		arr.push(rules.min(opt));
+		return arr;
+	},
+	password(options){
+		const defaultOptions = {
+			label : '비밀번호',
+			info : null,
+			required : true,
+			len : 6,
+			//정규표현식
+			//(?=^.{6,}$) 6자 이상
+			//(?=.*\d) 숫자 해당되어야 함
+			//(?=.*[a-zA-z]) 문자 해당되어야 함
+			pattern: /^.*(?=^.{6,}$)(?=.*\d)(?=.*[a-zA-z]).*/
+		};
+		const opt = Object.assign(defaultOptions, options);
+		const arr = [];
+		if(opt.required) {
+			arr.push(rules.require(opt));
+		}
+		arr.push(rules.min(opt))
+		arr.push(rules.pattern(opt));
+		return arr;
+	},
+	email(options) {
+		const defaultOptions = {
+			label : '이메일',
+			len : 3,
+			info : null,
+			required : true,
+			pattern: /.+@.+\..+/
+		};
+		const opt = Object.assign(defaultOptions, options);
+		const arr = [];
+		if(opt.required) {
+			arr.push(rules.require(opt));
+		}
+		arr.push(rules.pattern(opt));
 		return arr;
 	}
 };

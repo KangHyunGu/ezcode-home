@@ -5,7 +5,8 @@
 			<v-toolbar-title>회원가입</v-toolbar-title>
 		</v-toolbar>
 		<v-card-text> 
-					<sing-up-form :cbCheckId="checkId"/>
+					<!-- SignupForm.vue 에서 props 받아 중복 처리 -->
+					<sing-up-form :cbCheckId="checkId" :cbCheckEmail="checkEmail"/>
 				</v-card-text>
 		</v-card>
 	</div>
@@ -19,9 +20,18 @@ export default {
 	name: "Join",
 	methods : {
 		...mapActions('user', ['duplicateCheck']),
+
+		//ID 중복 검사
 		async checkId(id) {
 			console.log('id : ' + id); 
 			const data = await this.duplicateCheck({field: 'mb_id', value: id});
+			return data;
+		},
+
+		//이메일 중복 검사
+		async checkEmail(email) {
+			console.log('email : ' + email); 
+			const data = await this.duplicateCheck({field: 'mb_email', value: email});
 			return data;
 		}
 	}
