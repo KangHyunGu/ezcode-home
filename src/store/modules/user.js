@@ -1,4 +1,3 @@
-import { join } from "core-js/core/array";
 import Vue from "vue";
 export const state = () => ({
     member : null,
@@ -23,6 +22,9 @@ export const actions = {
         return data;
     },
     async createMember(ctx, form) {
-        console.log('user', form);
+        console.log('======> : ' ,form);
+        const { $axios} = Vue.prototype
+        const data = await $axios.post(`/api/member`, form)
+        return data;
     }
 };

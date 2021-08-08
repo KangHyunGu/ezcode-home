@@ -23,11 +23,11 @@ export default {
 	title: '회원가입',
 	data(){
 		return {
-			isLoading: false
+		isLoading: false
 		}
 	},
 	methods : {
-		...mapActions('user', ['duplicateCheck']),
+		...mapActions('user', ['duplicateCheck', 'createMember']),
 
 		//ID 중복 검사
 		async checkId(id) {
@@ -45,9 +45,8 @@ export default {
 
 		async save(form){
 			this.isLoading = true
-			setTimeout(() => {
-				this.isLoading = false
-			})
+			const data = await this.createMember(form);
+			this.isLoading = false
 		}
 	}
 }

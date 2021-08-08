@@ -8,4 +8,9 @@ router.get('/duplicateCheck/:field/:value', async (req, res)=> {
 	res.json(result);
 })
 
+router.post('/', async (req, res) => {
+    const result = await modelCall(memberModel.createMember, req);
+    res.json(req.body);
+})
+
 module.exports = router;

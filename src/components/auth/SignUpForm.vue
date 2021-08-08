@@ -141,7 +141,6 @@ export default {
 			if(!this.valid) return;
       if(!this.$refs.id.validate()) return;
       if(!this.$refs.email.validate()) return;
-      console.log( this.$emit('OnSave', this.form));
       this.$emit('OnSave', this.form);
     },
   },

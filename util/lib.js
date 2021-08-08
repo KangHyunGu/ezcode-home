@@ -19,6 +19,9 @@ const lib = {
 			return { err : e.message}
 
 		}
+	},
+	getIp(req) {
+		return req.ip.replace('::ffff:', '');
 	}
 }
 
