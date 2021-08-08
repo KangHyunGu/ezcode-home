@@ -69,7 +69,6 @@ export default {
         },
         dayFormat(day){
             // console.log(day)
-            
             const arr = day.split('-');
             return Number(arr[arr.length-1])
         }

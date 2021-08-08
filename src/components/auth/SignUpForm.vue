@@ -46,6 +46,18 @@
       :rules="rules.date({label:'생년월일'})"
      />
 
+     <input-radio v-model="form.mb_gender" 
+     :items="genderItems" 
+     row 
+     prepend-icon='mdi-gender-male-female'
+     :rules="[rules.require({label : '성별'})]"
+     />
+
+    <input-phone v-model="form.mb_phone" 
+    label="전화번호" 
+    prepend-icon='mdi-phone' 
+    :rules="rules.phone()"
+    />
 
     <v-btn type="submit" block color="primary">회원가입</v-btn>
   </v-form>
@@ -55,9 +67,11 @@
 import validateRules from "../../../util/validateRules";
 import InputDuplicateCheck from "../InputForms/InputDuplicateCheck.vue";
 import InputPassword from '../InputForms/InputPassword.vue';
-import InputDate from '../InputForms/InputDate.vue'
+import InputDate from '../InputForms/InputDate.vue';
+import InputRadio from '../InputForms/InputRadio.vue';
+import InputPhone from '../InputForms/inputPhone.vue';
 export default {
-  components: { InputDuplicateCheck, InputPassword,  InputDate},
+  components: { InputDuplicateCheck, InputPassword,  InputDate, InputRadio, InputPhone},
   name: "SignUpForm",
   props : {
 		cbCheckId : {
@@ -76,14 +90,18 @@ export default {
         mb_id: "test1",
         mb_password: "test1234",
         mb_name: "test",
-        mb_birth: "",
-        mb_gender: "",
+        mb_birth: "2021-08-08",
+        mb_gender: "M",
         mb_email: "test@test.com",
-        mb_phone: "",
+        mb_phone: "010-1111-1111",
         mb_zip: "",
         mb_addr1: "",
         mb_addr2: "",
       },
+      genderItems : [
+        {label : '남자', value : 'M'},
+        {label : '여자', value : 'F'}
+      ],
       confirpw : "test1234",
 
       // form: {
