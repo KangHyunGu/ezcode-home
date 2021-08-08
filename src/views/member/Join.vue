@@ -6,7 +6,9 @@
 		</v-toolbar>
 		<v-card-text> 
 					<!-- SignupForm.vue 에서 props 받아 중복 처리 -->
-					<sing-up-form :cbCheckId="checkId" :cbCheckEmail="checkEmail"/>
+					<sing-up-form :cbCheckId="checkId" :cbCheckEmail="checkEmail"
+					@OnSave="save"
+					:isLoading="isLoading"/>
 				</v-card-text>
 		</v-card>
 	</div>
@@ -18,6 +20,12 @@ import SingUpForm from "../../components/auth/SignUpForm.vue";
 export default {
 	components: { SingUpForm },
 	name: "Join",
+	title: '회원가입',
+	data(){
+		return {
+			isLoading: false
+		}
+	},
 	methods : {
 		...mapActions('user', ['duplicateCheck']),
 
@@ -33,6 +41,13 @@ export default {
 			console.log('email : ' + email); 
 			const data = await this.duplicateCheck({field: 'mb_email', value: email});
 			return data;
+		},
+
+		async save(form){
+			this.isLoading = true
+			setTimeout(() => {
+				this.isLoading = false
+			})
 		}
 	}
 }

@@ -1,3 +1,4 @@
+import { join } from "core-js/core/array";
 import Vue from "vue";
 export const state = () => ({
     member : null,
@@ -20,5 +21,8 @@ export const actions = {
         const { $axios } = Vue.prototype;
         const data = await $axios.get(`/api/member/duplicateCheck/${field}/${value}`)
         return data;
+    },
+    async createMember(ctx, form) {
+        console.log('user', form);
     }
 };

@@ -59,7 +59,14 @@
     :rules="rules.phone()"
     />
 
-    <v-btn type="submit" block color="primary">회원가입</v-btn>
+    <!-- required="false" 필수 입력 체크 skip -->
+    <input-post 
+    :zipcode.sync="form.mb_zip" 
+    :addr1.sync="form.mb_addr1" 
+    :addr2.sync="form.mb_addr2"
+    />
+
+    <v-btn type="submit" block color="primary" :loading="isLoading">회원가입</v-btn>
   </v-form>
 </template>
 
@@ -70,10 +77,15 @@ import InputPassword from '../InputForms/InputPassword.vue';
 import InputDate from '../InputForms/InputDate.vue';
 import InputRadio from '../InputForms/InputRadio.vue';
 import InputPhone from '../InputForms/inputPhone.vue';
+import InputPost from '../InputForms/InputPost.vue';
 export default {
-  components: { InputDuplicateCheck, InputPassword,  InputDate, InputRadio, InputPhone},
+  components: { InputDuplicateCheck, InputPassword,  InputDate, InputRadio, InputPhone, InputPost},
   name: "SignUpForm",
   props : {
+    isLoading : {
+			type: Boolean,
+			default : false
+		},
 		cbCheckId : {
 			type: Function,
 			default : null,
@@ -94,8 +106,8 @@ export default {
         mb_gender: "M",
         mb_email: "test@test.com",
         mb_phone: "010-1111-1111",
-        mb_zip: "",
-        mb_addr1: "",
+        mb_zip: "12345",
+        mb_addr1: "서울 종로구 이화동 113",
         mb_addr2: "",
       },
       genderItems : [
@@ -129,8 +141,8 @@ export default {
 			if(!this.valid) return;
       if(!this.$refs.id.validate()) return;
       if(!this.$refs.email.validate()) return;
-      console.log('SignUpForm.vue');
-      console.log(this.form);
+      console.log( this.$emit('OnSave', this.form));
+      this.$emit('OnSave', this.form);
     },
   },
 };

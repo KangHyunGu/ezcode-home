@@ -8370,6 +8370,11 @@ vue@^2.6.11:
   resolved "https://registry.npmjs.org/vue/-/vue-2.6.14.tgz"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
 
+vuejs-daum-postcode@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/vuejs-daum-postcode/-/vuejs-daum-postcode-1.0.4.tgz#084b7a6d3e42f3727c79f7ad7d5b161c7c27840d"
+  integrity sha512-xkKqhehDcZVrLAwA1bzbk1E9wA1v4qYcZnddso6W67snv9CWoQzhmlyvRr6LmaFNS4h53ja4paWpuiLXW9fA3g==
+
 vuetify@^2.4.0:
   version "2.5.5"
   resolved "https://registry.npmjs.org/vuetify/-/vuetify-2.5.5.tgz"

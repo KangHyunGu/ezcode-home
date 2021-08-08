@@ -17,12 +17,86 @@ attr : 부모의 컴포넌트 prop를 제외한 속성값을 그대로 적용된
 
 전화번호
 성별
-주소
-
-
-
-Radio
-//value 의 해당되는 자료형 타입(String, Number, Object)  
- props : {
+    Radio
+    //value 의 해당되는 자료형 타입(String, Number, Object)  
+    props : {
         value: [String, Number, Object]
     }
+    src\components\InputForms\InputRadio.vue
+      genderItems : [
+        {label : '남자', value : 'M'},
+        {label : '여자', value : 'F'}
+      ],
+주소
+
+    .sync ::: 수정자
+    2.3.0+의 새로운 기능
+
+    어떤 경우에는 소품에 대해 "양방향 바인딩"이 필요할 수 있습니다. 불행히도, 진정한 양방향 바인딩은 유지 관리 문제를 일으킬 수 있습니다. 왜냐하면 자식 구성 요소는 부모와 자식 모두에서 해당 돌연변이의 출처가 분명하지 않은 상태에서 부모를 변경할 수 있기 때문입니다.
+
+    그렇기 때문에 대신 의 패턴으로 이벤트를 내보내는 것이 좋습니다 update:myPropName. 예를 들어, titleprop이 있는 가상 구성 요소에서 다음을 사용 하여 새 값을 할당하려는 의도를 전달할 수 있습니다.
+
+    this.$emit('update:title', newTitle)
+
+    -- 우편번호 API 사용(npm 사이트 참조)
+    https://www.npmjs.com/package/vuejs-daum-postcode
+    yarn add vuejs-daum-postcode
+    (npm install --save vuejs-daum-postcode)
+
+    import DaumPostcode from 'vuejs-daum-postcode'
+    (참조 할 vuejs에 import 선언 할 것)
+
+    src\components\InputForms\InputPost.vue
+    <v-text-field label="주소" :value="addr1" readonly></v-text-field>
+    <v-text-field label="상세주소" :value="addr2" @input="$emit
+    <v-dialog v-model="dialog" max-width="500" persistent>
+            <v-toolbar>
+                <v-toolbar-title>주소검색</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon plain @click="closeDialog">
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
+            </v-toolbar>
+            <daum-postcode
+                :on-complete="handelAddress" />
+            
+    </v-dialog>
+
+     methods : {
+        openDialog(){
+            this.dialog = true;
+        },
+        closeDialog(){
+            this.dialog = false;
+        },
+        handelAddress(data){ 
+            let fullAddress = data.address
+            let extraAddress = ''
+            if (data.addressType === 'R') {
+                if (data.bname !== '') {
+                extraAddress += data.bname
+                }
+                if (data.buildingName !== '') {
+                extraAddress += (extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName)
+                }
+                fullAddress += (extraAddress !== '' ? ` (${extraAddress})` : '')
+            }
+            
+            console.log(data.zonecode, fullAddress) 
+            // e.g. '서울 성동구 왕십리로2길 20 (성수동1가)'
+
+            this.$emit('update:zipcode', data.zonecode);
+            this.$emit('update:addr1', fullAddress);
+            this.closeDialog();
+        }
+
+        src\components\auth\SignUpForm.vue
+          <input-post 
+             :zipcode.sync="form.mb_zip" 
+             :addr1.sync="form.mb_addr1" 
+             :addr2.sync="form.mb_addr2"
+            />
+    
+    }
+
+   
