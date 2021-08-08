@@ -18,20 +18,20 @@
     />
 
     <input-password 
-    label="비밀번호"
-    v-model="form.mb_password"
-    prepend-icon="mdi-lock"
-    :rules="rules.password()"
+      label="비밀번호"
+      v-model="form.mb_password"
+      prepend-icon="mdi-lock"
+      :rules="rules.password()"
     />
 
-     <input-password 
-    label="비밀번호확인"
-    v-model="confirpw"
-    prepend-icon="mdi-lock-check"
-    :rules="[rules.matchValue(form.mb_password)]"
+    <input-password 
+      label="비밀번호확인"
+      v-model="confirpw"
+      prepend-icon="mdi-lock-check"
+      :rules="[rules.matchValue(form.mb_password)]"
     />
 
-     <input-duplicate-check
+    <input-duplicate-check
 			ref="email"
       label="이메일"
       prepend-icon="mdi-email"
@@ -39,6 +39,13 @@
 			:rules="rules.email()"
 			:cbCheck="cbCheckEmail"
     />
+
+     <input-date v-model="form.mb_birth" 
+      label="생년월일" 
+      prepend-icon="mdi-calendar"
+      :rules="rules.date({label:'생년월일'})"
+     />
+
 
     <v-btn type="submit" block color="primary">회원가입</v-btn>
   </v-form>
@@ -48,8 +55,9 @@
 import validateRules from "../../../util/validateRules";
 import InputDuplicateCheck from "../InputForms/InputDuplicateCheck.vue";
 import InputPassword from '../InputForms/InputPassword.vue';
+import InputDate from '../InputForms/InputDate.vue'
 export default {
-  components: { InputDuplicateCheck, InputPassword },
+  components: { InputDuplicateCheck, InputPassword,  InputDate},
   name: "SignUpForm",
   props : {
 		cbCheckId : {
@@ -65,18 +73,32 @@ export default {
     return {
       valid: true,
       form: {
-        mb_id: "",
-        mb_password: "",
-        mb_name: "",
+        mb_id: "test1",
+        mb_password: "test1234",
+        mb_name: "test",
         mb_birth: "",
         mb_gender: "",
-        mb_email: "",
+        mb_email: "test@test.com",
         mb_phone: "",
         mb_zip: "",
         mb_addr1: "",
         mb_addr2: "",
       },
-      confirpw : "",
+      confirpw : "test1234",
+
+      // form: {
+      //   mb_id: "test1",
+      //   mb_password: "test1234",
+      //   mb_name: "test",
+      //   mb_birth: "",
+      //   mb_gender: "",
+      //   mb_email: "test@test.com",
+      //   mb_phone: "",
+      //   mb_zip: "",
+      //   mb_addr1: "",
+      //   mb_addr2: "",
+      // },
+      // confirpw : "test1234",
     };
   },
   computed: {

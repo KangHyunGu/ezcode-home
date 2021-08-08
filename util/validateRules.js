@@ -81,6 +81,21 @@ const rules = {
 		}
 		arr.push(rules.pattern(opt));
 		return arr;
+	},
+	date(options) {
+		const defaultOptions = {
+			label : '날짜',
+			info : 'YYYY-MM-DD 형식에 맞게 입력하세요',
+			required : true,
+			pattern: /^\d{4}-\d{2}-\d{2}$/
+		};
+		const opt = Object.assign(defaultOptions, options);
+		const arr = [];
+		if(opt.required) {
+			arr.push(rules.require(opt));
+		}
+		arr.push(rules.pattern(opt));
+		return arr;
 	}
 };
 

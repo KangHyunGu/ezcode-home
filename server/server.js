@@ -12,9 +12,6 @@ const webServer = http.createServer(app);
 // 정적 폴더
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// 정적 폴더
-app.use(express.static(path.join(__dirname, "../dist")));
-
 // api 라우터
 const memberRouter = require('./api/member');
 app.use('/api/member', memberRouter);
