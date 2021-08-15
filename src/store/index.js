@@ -8,7 +8,7 @@ export function createStore() {
   const store = new Vuex.Store({
     state: {
       config : {
-        title : "ezCode",
+        title : "ezCode Home",
 				footer : "ezCode all right reserved.",
         menu : [
 					{

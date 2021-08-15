@@ -9,9 +9,18 @@ const app = express();
 const port = process.env.VUE_APP_SERVER_PORT || 3000;
 const webServer = http.createServer(app);
 
+// jwt 토근
+const jwt = require('./plugins/jwt')
+// console.log(jwt.getRendToken(32));
+// console.log(jwt.generatePassword('abcd1234'));
+
 // parser
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+// passport
+const passport = require('./plugins/passport');
+passport(app);
 
 // 정적 폴더
 app.use(express.static(path.join(__dirname, "../dist")));
@@ -25,6 +34,7 @@ app.use('/api/*', (req, res)=> {
 
 // Vue SSR
 const { createBundleRenderer } = require('vue-server-renderer');
+const { password } = require('../util/validateRules');
 const template = fs.readFileSync(path.join(__dirname, 'index.template.html'), 'utf-8');
 const serverBundle = require(path.join(__dirname, '../dist/vue-ssr-server-bundle.json'));
 const clientManifest = require(path.join(__dirname, '../dist/vue-ssr-client-manifest.json'));

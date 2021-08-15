@@ -1,9 +1,30 @@
 const db = require('../../plugins/mysql')
+const jwt = require('../../plugins/jwt')
+
 const sqlHelper = require('../../../util/sqlHelper')
 const TABLE =  require('../../../util/TABLE')
 const { LV } = require('../../../util/level')
 const moment = require('../../../util/moment')
 const { getIp } = require('../../../util/lib')
+
+function clearMemberField(member) {
+    delete member.mb_password;
+    member.mb_create_at = moment(member.mb_create_at).format('LT');
+    member.mb_update_at = moment(member.mb_update_at).format('LT');
+    if(member.mb_login_at) {
+        member.mb_login_at = moment(member.mb_login_at).format('LT');
+    }
+
+    if(member.mb_leave_at) {
+        member.mb_leave_at = moment(member.mb_leave_at).format('LT');
+    }
+
+    if(member.mb_birth) {
+        member.mb_birth = moment(member.mb_birth).format('L');
+    }
+
+    return member;
+}
 
 async function getDefaultMemberLevel() {
     const sql = sqlHelper.SelectSimple(
@@ -15,7 +36,7 @@ async function getDefaultMemberLevel() {
     console.log('getDefaultMemberLevel sql : ', sql)
 
     const [[row]] = await db.execute(sql.query, sql.values);
-    console.log(row);
+    //console.log(row);
     if(row.cnt > 0){
         return LV.MEMBER
     } else {
@@ -47,9 +68,32 @@ const memberModel = {
             mb_update_at : at,
             mb_update_ip : ip,
         }
+        // 비밀번호 암호화(sha512 Hash함수)
+        payload.mb_password = jwt.generatePassword(payload.mb_password);
         const sql = sqlHelper.Insert(TABLE.MEMBER, payload)
-        console.log(sql);
-        return req.body
+        const [row] = await db.execute(sql.query, sql.values)
+        //console.log(sql);
+        //console.log(row);
+        return row.affectedRows == 1;
+    },
+    async getMemberBy(form, cols = []) {
+        // {mb_id : 'test', mb_password : hash(mb_password)}
+        const sql = sqlHelper.SelectSimple(TABLE.MEMBER, form, cols);
+        const [[row]] = await db.execute(sql.query, sql.values);
+        if(!row) {
+            throw new Error('존재하지 않는 회원입니다.');
+        }
+        return clearMemberField(row);
+    },
+    loginMember(req) {
+        const data = {
+            mb_login_at : moment().format('LT'),
+            mb_login_ip : getIp(req)
+        };
+        const { mb_id } = req.body;
+        const sql = sqlHelper.Update(TABLE.MEMBER, data, {mb_id});
+        db.execute(sql.query, sql.values);
+        return data;
     }
 
 }
