@@ -1,19 +1,24 @@
 const router = require('express').Router();
-const passport = require('passport');
-const { modelCall } = require('../../util/lib');
 const memberModel = require('./_model/memberModel');
+const { modelCall } = require('../../util/lib');
+const passport = require('passport');
 const jwt = require('../plugins/jwt')
+
+// /api/member/duplicateCheck/mb_id/abcd
+// MVC 패턴
 
 router.get('/duplicateCheck/:field/:value', async (req, res)=> {
     const result = await modelCall(memberModel.duplicateCheck, req.params);
 	res.json(result);
 })
 
+// 회원가입
 router.post('/', async (req, res) => {
     const result = await modelCall(memberModel.createMember, req);
     res.json(result);
 })
 
+// 로그인
 router.post('/loginLocal', async (req, res) => {
     //passport authenticate를 이용하여 done 함수 호출
     passport.authenticate('local', function(err, member, info){
@@ -27,7 +32,7 @@ router.post('/loginLocal', async (req, res) => {
             //false를 설정 하였을 때 cookie 값 활용
             req.login(member, {session : false}, (err) => {
                 if(err){
-                    console.log(err)
+                    console.log('loginLocal', err)
                     res.json({err})
                 } else {
                     // token 값 가져 올 때

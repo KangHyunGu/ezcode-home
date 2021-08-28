@@ -35,13 +35,9 @@ async function getDefaultMemberLevel() {
 
     console.log('getDefaultMemberLevel sql : ', sql)
 
-    const [[row]] = await db.execute(sql.query, sql.values);
+    const [[{cnt}]] = await db.execute(sql.query, sql.values);
     //console.log(row);
-    if(row.cnt > 0){
-        return LV.MEMBER
-    } else {
-        return LV.SUPER
-    }
+   return cnt == 0 ? LV.SUPER : LV.MEMBER
 }
 
 const memberModel = {
@@ -67,6 +63,18 @@ const memberModel = {
             mb_create_ip : ip,
             mb_update_at : at,
             mb_update_ip : ip,
+        }
+        // 이미지 업로드 처리
+        delete payload.mb_image;
+        if(req.files && req.files.mb_image){
+            //param 1 : filePath
+            //param 2 : collback(err)
+            req.files.mb_image.mv(`${MEMBER_PHOTO_PATH}/${payload.mb_id}.jpg`, (err) => {
+                //이미지 업로드 중 오류 시
+                if(err){
+                    console.log('Member Image Upload Error', err)
+                }
+            });
         }
         // 비밀번호 암호화(sha512 Hash함수)
         payload.mb_password = jwt.generatePassword(payload.mb_password);

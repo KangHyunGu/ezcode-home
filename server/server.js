@@ -18,6 +18,16 @@ const jwt = require('./plugins/jwt')
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+// fileUpload
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+// 글로벌 셋팅
+global.MEMBER_PHOTO_PATH = path.join(__dirname, './upload/memberPhoto');
+fs.mkdirSync(MEMBER_PHOTO_PATH, {recursive:true});
+
 // passport
 const passport = require('./plugins/passport');
 passport(app);
