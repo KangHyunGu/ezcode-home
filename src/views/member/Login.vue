@@ -47,7 +47,10 @@ data() {
   methods : {
 	  ...mapActions('user', ['signInLocal']),
 	  async loginLocal(form) {
-		  const data = await this.signInLocal(form)
+		  	this.isLoading = true;
+			const data = await this.signInLocal(form);
+			//console.log('login data', data);
+			this.isLoading = false;
 	  }
   }
 }

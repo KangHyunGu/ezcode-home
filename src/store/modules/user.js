@@ -5,7 +5,10 @@ export const state = () => ({
 
 
 export const mutations = {
-
+    SET_MEMBER(state, member){
+        state.member = member;
+    }
+    
 };
 
 export const getters = {
@@ -31,7 +34,10 @@ export const actions = {
         console.log('Login ======> : ' ,form);
         const { $axios} = Vue.prototype
         const data = await $axios.post(`/api/member/loginLocal`, form)
-        console.log('loginLocal data : ', data)
+        if(data) {
+            console.log('loginLocal data : ', data)
+            commit('SET_MEMBER', data.member)
+        }
         return data
     }
 };

@@ -9,6 +9,17 @@ const app = express();
 const port = process.env.VUE_APP_SERVER_PORT || 3000;
 const webServer = http.createServer(app);
 
+// 파비콘
+// server.js에 업로드된 파일에 대한 라우터를 등록하고 favicon에 대한 처리도 함
+app.use((req, res, next) => {
+	if(req.path.indexOf('favicon.ico') > -1){
+		const favicon = fs.readFileSync(path.join(__dirname, '../dist/favicon.ico'));
+		res.status(200).end(favicon);
+		return;
+	}
+	next();
+});
+
 // jwt 토근
 const jwt = require('./plugins/jwt')
 // console.log(jwt.getRendToken(32));
@@ -26,11 +37,16 @@ app.use(cookieParser());
 
 // 글로벌 셋팅
 global.MEMBER_PHOTO_PATH = path.join(__dirname, './upload/memberPhoto');
+// 폴더 생성(./server/upload/memberPhoto)
 fs.mkdirSync(MEMBER_PHOTO_PATH, {recursive:true});
 
 // passport
 const passport = require('./plugins/passport');
 passport(app);
+
+// 이미지 업로드
+const thumbnail = require('./plugins/thumbnail');
+app.use('/upload/:_path', thumbnail(path.join(__dirname, './upload')));
 
 // 정적 폴더
 app.use(express.static(path.join(__dirname, "../dist")));
