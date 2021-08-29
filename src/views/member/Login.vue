@@ -50,6 +50,10 @@ data() {
 		  	this.isLoading = true;
 			const data = await this.signInLocal(form);
 			//console.log('login data', data);
+			if(data) {
+				this.$router.push('/')
+				this.$toast.info(`${this.$store.state.user.member.mb_name}님 환영합니다.`);
+			}
 			this.isLoading = false;
 	  }
   }

@@ -49,6 +49,13 @@ export const actions = {
             //개발자 모드 Application -> Cookies 확인 가능
             VueCookies.set('token', data.token)
         }
-        return data
+        return !!data;
+    },
+
+    async signOut({commit, state}) {
+        const mb_name = state.member.mb_name
+        commit('SET_MEMBER', null);
+        VueCookies.remove('token');
+        return mb_name;
     }
 };

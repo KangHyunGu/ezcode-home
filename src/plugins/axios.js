@@ -27,7 +27,7 @@ const _axios = axios.create(config);
 _axios.interceptors.request.use(
   function(config) {
     // 토근이 존재 할 경우 헤더에 넣어 보낸다.
-    if(VueCookies.isKey('token')){
+    if(typeof(window) == 'object' && VueCookies.isKey('token')){
       //config.headers.Authorization = VueCookies.get('token')
       //'Bearer ' + VueCookies.get('token') 규칙ㄴ 
       config.headers.Authorization = 'Bearer ' + VueCookies.get('token')

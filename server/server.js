@@ -85,10 +85,9 @@ app.get('*', (req, res) => {
 		url : req.url,
 		title : 'Vue SSR App',
 		metas : `<!-- inject more metas -->`,
+		member : req.user
 	};
-
 	const stream = renderer.renderToStream(ctx);
-
 	stream.on('end', ()=> {
 		const memSize = Object.entries(process.memoryUsage())[0][1];
 		console.log('스트림 렌더 종료 ', (memSize / 1024/1024).toFixed(4));
