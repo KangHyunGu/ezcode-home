@@ -90,11 +90,11 @@ app.get('*', (req, res) => {
 	const stream = renderer.renderToStream(ctx);
 
 	stream.on('end', ()=> {
+		const memSize = Object.entries(process.memoryUsage())[0][1];
 		console.log('스트림 렌더 종료 ', (memSize / 1024/1024).toFixed(4));
 		//if(process.platform == 'linux') {
 		//Object.entries(process.memoryUsage()) => Array
 		//현재 사용 중인 메모리 사이즈
-		const memSize = Object.entries(process.memoryUsage())[0][1];
 		if(process.platform == 'linux'){
 			if(memSize > 150000000){
 				process.emit('SIGINT');
