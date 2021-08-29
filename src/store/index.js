@@ -4,9 +4,9 @@ import modules from "./modules"
 
 Vue.use(Vuex)
 
-export function createStore() {
-  const store = new Vuex.Store({
+const store = new Vuex.Store({
     state: {
+	  appReady : false,
       config : {
         title : "ezCode Home",
 				footer : "ezCode all right reserved.",
@@ -65,11 +65,28 @@ export function createStore() {
       }
     },
     mutations: {
+		SET_APP_READY(state) {
+			state.appReady = true;
+		}
     },
     actions: {
+		async appInit({dispatch, commit}, member) {
+			// 사이트 설정을 가지고 옴
+			if(member) {
+				commit('user/SET_MEMBER', member)
+			} else {
+				await dispatch('user/initUser')
+			}
+			commit('SET_APP_READY');
+		}
     },
     modules
   })
-  return store;
-}
+  export function createStore() {
+  	return store;
+  }
+
+  export default store;
+
+
 

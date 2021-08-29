@@ -49,5 +49,9 @@ router.post('/loginLocal', async (req, res) => {
     // res.json(result);
 })
 
+router.get('/auth', (req, res) => {
+    console.log('auth', req.user);
+    res.json(req.user || false);
+})
 
 module.exports = router;

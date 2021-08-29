@@ -9,6 +9,15 @@ const app = express();
 const port = process.env.VUE_APP_SERVER_PORT || 3000;
 const webServer = http.createServer(app);
 
+let isDiasbleKeppAlive = false;
+app.use((req, res, next) => {
+	if(isDiasbleKeppAlive){
+		console.log('Keep Alive', isDiasbleKeppAlive);
+		res.set('Connection', 'close');
+	}
+	next();
+})
+
 // 파비콘
 // server.js에 업로드된 파일에 대한 라우터를 등록하고 favicon에 대한 처리도 함
 app.use((req, res, next) => {
@@ -65,13 +74,12 @@ const template = fs.readFileSync(path.join(__dirname, 'index.template.html'), 'u
 const serverBundle = require(path.join(__dirname, '../dist/vue-ssr-server-bundle.json'));
 const clientManifest = require(path.join(__dirname, '../dist/vue-ssr-client-manifest.json'));
 
-const renderer = createBundleRenderer(serverBundle, {
-	runInNewContext : false,
-	template,
-	clientManifest,
-});
-
 app.get('*', (req, res) => {
+	const renderer = createBundleRenderer(serverBundle, {
+		runInNewContext : false,
+		template,
+		clientManifest,
+	});
 	console.log('server.js * router');
 	const ctx = {
 		url : req.url,
@@ -82,14 +90,33 @@ app.get('*', (req, res) => {
 	const stream = renderer.renderToStream(ctx);
 
 	stream.on('end', ()=> {
-		console.log('스트림 렌더 종료');
+		console.log('스트림 렌더 종료 ', (memSize / 1024/1024).toFixed(4));
+		//if(process.platform == 'linux') {
+		//Object.entries(process.memoryUsage()) => Array
+		//현재 사용 중인 메모리 사이즈
+		const memSize = Object.entries(process.memoryUsage())[0][1];
+		if(process.platform == 'linux'){
+			if(memSize > 150000000){
+				process.emit('SIGINT');
+			} 
+		}
+		//}
 	}).pipe(res);
 });
 
 // 서버 리슨
 webServer.listen(port, () => {
-	console.log(`http://localhost:${port}`)
+	process.send('ready');
+	console.log(`http://localhost:${port}`);
 });
+
+process.on('SIGINT', function(){
+	isDiasbleKeppAlive = true;
+	webServer.close(function(){
+		console.log('server Closed')
+		process.exit(0);
+	})
+})
 
 
 // 함수 람다식 표현

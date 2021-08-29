@@ -10,13 +10,13 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
 	name : "MemberMenu",
-	props : {
-		member : {
-			type: Object,
-			default : null,
-		}
+	computed : {
+		...mapState({
+			member : state => state.user.member
+		})
 	}
 }
 </script>
