@@ -40,6 +40,8 @@ router.post('/loginLocal', async (req, res) => {
                     const data = memberModel.loginMember(req);
                     member.mb_login_at = data.mb_login_at
                     member.mb_login_ip = data.mb_login_ip
+                    // 응답 시 Cookie가 브라우져에 생성
+                    res.cookie('token', token, {httpOnly:true})
                     res.json({member, token});
                 }
             })
@@ -49,9 +51,24 @@ router.post('/loginLocal', async (req, res) => {
     // res.json(result);
 })
 
+// 인증
 router.get('/auth', (req, res) => {
+    const member = req.user || null;
+    const token = req.cookies.token || null;
     console.log('auth', req.user);
-    res.json(req.user || false);
+    res.json({member, token});
+    //res.json(req.user || false);
 })
 
+// 로그아웃
+router.get('/signOut', (req, res) => {
+    res.clearCookie('token');
+    res.json(true);
+})
+
+// 아이디 찾기
+router.get('/findId', async (req, res) => {
+    const result = await modelCall(memberModel.findId, req.query)
+    res.json(result);
+})
 module.exports = router;

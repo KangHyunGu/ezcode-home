@@ -18,7 +18,6 @@ export function createRouter() {
 		if($Progress) $Progress.start();
 		console.log(store.state.appReady);
 		if(typeof(window) == 'object'){
-			
 			if(!store.state.appReady){
 				if(window.__INITIAL_STATE__) {
 					store.replaceState(window.__INITIAL_STATE__)

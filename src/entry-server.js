@@ -2,9 +2,9 @@ import { createApp } from './main';
 
 export default (ctx) => {
 	return new Promise(async (resolve, reject) => {
-		const { app, router, store } = createApp();
-		await store.dispatch('appInit', ctx.member);
-		router.push(ctx.url);
+		const { app, router, store } = createApp(ctx);
+		await store.dispatch('appInit', ctx);
+		router.push(ctx.url); //router/index.js
 		
 		router.onReady(() => {
 			

@@ -1,0 +1,31 @@
+httpOnly : true로 설정하였을 때 Client단에서 수정을 못한다.
+(server단에서 관리 하여 보안 강화)
+
+
+1. SSR 라이프 사이클 참조
+https://ezcode.kr/board/vuessr/read/19
+
+순서 
+entry-server.js 
+entry-client.js
+
+
+2. qs lib 설치
+yarn add qs
+
+import qs from 'qs'
+qs.stringify(form)
+//mb_name=test&mb_email=test%40daum.net
+//console.log(query);
+
+
+3. 이메일 발송(비밀번호 찾기)
+google 메일 보안 설정 
+https://jizard.tistory.com/150(순차적으로 진행)
+1) 보안 수준 낮음으로 설정
+2) 계정에 대한 엑세스 허용(계속)
+
+
+-> node - mailer
+
+
