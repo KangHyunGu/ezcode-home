@@ -20,7 +20,10 @@
           <v-tab-item>
             <find-id-form @save="findId" :isLoding="isLoding" />
           </v-tab-item>
-          <v-tab-item>{{ tabs }} 비번</v-tab-item>
+
+          <v-tab-item>
+            <find-pw-form @save="findPw" :isLoding="isLoding" />
+          </v-tab-item>
         </v-tabs-items>
       </v-card-text>
 
@@ -34,10 +37,11 @@
 <script>
 import { mapActions } from "vuex";
 import FindIdForm from "../../components/auth/FindIdForm.vue";
+import FindPwForm from "../../components/auth/FindPwForm.vue";
 import SignInForm from "../../components/auth/SignInForm.vue";
 import SiteTitle from "../../components/layout/SiteTitle.vue";
 export default {
-  components: { SiteTitle, SignInForm, FindIdForm },
+  components: { SiteTitle, SignInForm, FindIdForm, FindPwForm },
   name: "Login",
   data() {
     return {
@@ -48,7 +52,7 @@ export default {
   },
 
   methods: {
-    ...mapActions("user", ["signInLocal", "findIdLocal"]),
+    ...mapActions("user", ["signInLocal", "findIdLocal", "findPwLocal"]),
     async loginLocal(form) {
       this.isLoading = true;
       const data = await this.signInLocal(form);
@@ -71,6 +75,15 @@ export default {
           "FindId"
         );
         this.tabs = 0;
+      }
+    },
+
+    async findPw(form) {
+      const data = await this.findPwLocal(form);
+      if (data && data.mb_name) {
+        await this.$toast.info(
+          `${data.mb_name}님 ${form.mb_email}로 이메일을 발송하였습니다.`
+        );
       }
     },
   },

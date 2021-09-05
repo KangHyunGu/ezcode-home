@@ -1,5 +1,7 @@
+const fs = require('fs')
 const db = require('../../plugins/mysql')
 const jwt = require('../../plugins/jwt')
+const sendMailer = require('../../plugins/sendMailer');
 
 const sqlHelper = require('../../../util/sqlHelper')
 const TABLE =  require('../../../util/TABLE')
@@ -108,6 +110,59 @@ const memberModel = {
         const [[row]] = await db.execute(sql.query, sql.values)
         if(!row) throw new Error('일치하는 회원이 없습니다.');
         return row;
+    },
+
+    async findPw(req) {
+        const data = req.query
+
+        const sql = sqlHelper.SelectSimple(TABLE.MEMBER, data, ['mb_name', 'mb_email']);
+        const [[member]] = await db.execute(sql.query, sql.values)
+       
+        if(!member) throw new Error('일치하는 회원이 없습니다.')
+
+        // 이메일
+        // 랜덤 토큰 하나 발급
+        // 이 토큰 정보를 DB 넣는다.
+        // DB TABLE에 있어야 된다.
+        // sm_id, sm_to, sm_hash, sm_subject, sm_content, sm_create_at, sm_expire_at
+        const sm_hash = jwt.getRendToken(64);
+        const title = 'ezCode';
+        const sm_subject = `${title} 비밀번호 찾기`;
+        const sm_create_at = moment().format('LT');
+        const expire_at = moment().add('30', 'm');
+
+        //'x-forwarded-host' 개발서버(dev)
+        // req.headers.host  실제서버
+        const hostName = req.headers['x-forwarded-host'] || req.headers.host
+        const baseUrl = `${req.protocol}://${hostName}/modifyPassword/`;
+        
+
+        // {{name}} {{link}} {{time}} ==> html에서 작성 된 값을 파일로 읽어와 아래와 같이 치환
+        let sm_content = fs.readFileSync(__dirname + '/findPwForm.html').toString();
+        sm_content = sm_content.replace('{{name}}', member.mb_name)
+        sm_content = sm_content.replace('{{time}}', expire_at.format('LLLL') + '분')
+        sm_content = sm_content.replace('{{link}}', baseUrl + sm_hash)
+
+        const sm = {
+            sm_to : data.mb_email,
+            sm_type : 1,
+            sm_hash,
+            sm_subject,
+            sm_content,
+            sm_create_at,
+            sm_expire_at : expire_at.format('LT'),
+        }
+        
+        try {
+            await sendMailer(`${title} 관리자`, data.mb_email, sm_subject, sm_content)
+            console.log(TABLE.SEND_MAIL);
+            const smSql = sqlHelper.Insert(TABLE.SEND_MAIL, sm);
+            await db.execute(smSql.query, smSql.values);
+        } catch(e) {
+            console.log(e.meesage);
+            return {err : 'email 발송에 실패 하였습니다.\n 관리자에 문의 주세요.'}
+        }
+        return member;
     },
 
 }
