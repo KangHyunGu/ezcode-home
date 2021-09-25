@@ -26,8 +26,11 @@
           </v-tab-item>
         </v-tabs-items>
       </v-card-text>
+      <v-card-text class="mt-n4">
+        <v-btn @click="loginGoogle" block>구글 로그인</v-btn>
+      </v-card-text>
 
-      <v-card-text>
+      <v-card-text class="mt-n4">
         <v-btn to="/join" block>회원가입</v-btn>
       </v-card-text>
     </v-card>
@@ -35,7 +38,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapMutations } from "vuex";
 import FindIdForm from "../../components/auth/FindIdForm.vue";
 import FindPwForm from "../../components/auth/FindPwForm.vue";
 import SignInForm from "../../components/auth/SignInForm.vue";
@@ -52,10 +55,12 @@ export default {
   },
 
   methods: {
+    ...mapMutations("user", ["SET_MEMBER", "SET_TOKEN"]),
     ...mapActions("user", ["signInLocal", "findIdLocal", "findPwLocal"]),
     async loginLocal(form) {
       this.isLoading = true;
       const data = await this.signInLocal(form);
+      this.isLoading = false;
       //console.log('login data', data);
       if (data) {
         this.$router.push("/");
@@ -63,11 +68,12 @@ export default {
           `${this.$store.state.user.member.mb_name}님 환영합니다.`
         );
       }
-      this.isLoading = false;
     },
 
     async findId(form) {
+      this.isLoading = true;
       const data = await this.findIdLocal(form);
+      this.isLoading = false;
 
       if (data && data.mb_id) {
         await this.$ezNotify.alert(
@@ -79,12 +85,40 @@ export default {
     },
 
     async findPw(form) {
+      this.isLoading = true;
       const data = await this.findPwLocal(form);
+      this.isLoading = false;
       if (data && data.mb_name) {
         await this.$toast.info(
           `${data.mb_name}님 ${form.mb_email}로 이메일을 발송하였습니다.`
         );
       }
+    },
+
+    async loginGoogle() {
+      const childWindow = window.open(
+        "/api/member/loginGoogle",
+        "googleAuth",
+        "top=10, left=10, width=500, height=600, status=no, menubar=no, toolbar=no, resizable=no"
+      );
+      if (!window.onGoogleCallback) {
+        window.onGoogleCallback = this.googleLoginCallback;
+      }
+    },
+    async googleLoginCallback(payload) {
+      if (payload.err) {
+        this.$toast.err(payload.err);
+      } else {
+        this.SET_MEMBER(payload.member);
+        this.SET_TOKEN(payload.token);
+        // 최초 로그인 정보 변경하는 페이지로 이동해야 하고
+
+        this.$router.push("/");
+        this.$toast.info(
+          `${this.$store.state.user.member.mb_name}님 환영합니다.`
+        );
+      }
+      // window.removeEventListener('message', this.googleLoginCallback);
     },
   },
 };

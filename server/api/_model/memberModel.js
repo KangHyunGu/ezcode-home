@@ -7,7 +7,7 @@ const sqlHelper = require('../../../util/sqlHelper')
 const TABLE =  require('../../../util/TABLE')
 const { LV } = require('../../../util/level')
 const moment = require('../../../util/moment')
-const { getIp } = require('../../../util/lib')
+const { getIp } = require('../../../util/lib');
 
 function clearMemberField(member) {
     delete member.mb_password;
@@ -155,7 +155,6 @@ const memberModel = {
         
         try {
             await sendMailer(`${title} 관리자`, data.mb_email, sm_subject, sm_content)
-            console.log(TABLE.SEND_MAIL);
             const smSql = sqlHelper.Insert(TABLE.SEND_MAIL, sm);
             await db.execute(smSql.query, smSql.values);
         } catch(e) {
@@ -164,6 +163,86 @@ const memberModel = {
         }
         return member;
     },
+    async modifyPassword(data) {
+        // 유효시간이 경과한 데이터 삭제
+        const delQuery = `DELETE FROM ${TABLE.SEND_MAIL} WHERE sm_expire_at < NOW()`;
+        await db.execute(delQuery)
+
+        // 유효시간 내 존재하는 해쉬로 검색
+        const sql = {
+            query : `SELECT sm_to FROM ${TABLE.SEND_MAIL} WHERE sm_type=? AND sm_hash=? AND sm_expire_at > NOW()`,
+            values : [1, data.hash] 
+        }
+        
+        const [[row]] = await db.execute(sql.query, sql.values)
+
+        if(!row){
+            throw new Error('시간이 만료되었거나 이미 처리되었습니다.')
+        }
+
+        // 검색 된 데이터가 존재한
+        const mb_email = row.sm_to;
+        const mb_password = await jwt.generatePassword(data.password)
+        const upSql = sqlHelper.Update(TABLE.MEMBER, {mb_password},{mb_email})
+     
+        const [upRes] = await db.execute(upSql.query, upSql.values);
+        
+
+        // 처리결과 삭제
+        const delSql = sqlHelper.DeleteSimple(TABLE.SEND_MAIL, {sm_hash : data.hash})
+        db.execute(delSql.query, delSql.values);
+        return upRes.affectedRows == 1;
+    },
+	async loginGoogle(req, profile) {
+		let member = null;
+		try { // 이미 회원 있는지 ?
+			member = await memberModel.getMemberBy({
+				mb_email: profile.email
+			});
+		} catch (e) { // 없으면 새로 디비에 저장
+			const at = moment().format('LT');
+			const ip = getIp(req);
+			const data = {
+				mb_id : profile.id,
+				mb_password : '',
+				mb_name : profile.displayName,
+				mb_email : profile.email,
+				mb_level: await getDefaultMemberLevel(),
+				mb_create_at: at,
+				mb_create_ip: ip,
+				mb_update_at: at,
+				mb_update_ip: ip,
+			};
+			const sql = sqlHelper.Insert(TABLE.MEMBER, data);
+			await db.execute(sql.query, sql.values);
+			member = await memberModel.getMemberBy({
+				mb_email: profile.email
+			});
+		}
+		return member;
+	},
+    async googleCallback(req, res, err, member) {
+		let html = fs.readFileSync(__dirname + '/socialPopup.html').toString();
+		let payload = {};
+		if (err) {
+			payload.err = err;
+		} else {
+			// 토큰, 만들고 쿠키 생성
+			const token = jwt.getToken(member);
+			req.body.mb_id = member.mb_id;
+
+			const data = memberModel.loginMember(req);
+			member.mb_login_at = data.mb_login_at;
+			member.mb_login_ip = data.mb_login_ip;
+			res.cookie('token', token, { httpOnly: true });
+			payload.token = token;
+			payload.member = member;
+		}
+		// console.log(payload);
+		html = html.replace('{{payload}}', JSON.stringify(payload));
+
+		return html;
+	},
 
 }
 

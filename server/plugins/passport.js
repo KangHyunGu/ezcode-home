@@ -8,6 +8,8 @@ const jwt = require('../plugins/jwt')
 const memberModel = require('../api/_model/memberModel')
 //const {Strategy : JWTStrategy, ExtractJwt} = require('passport-jwt')
 //const { SECRET_KEY } = process.env
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, CALLBACK_URL} = process.env;
 
 module.exports = (app) => {
     // passport 초기화
@@ -33,7 +35,25 @@ module.exports = (app) => {
                 return done(null, null, '아이디 또는 비밀번호 올바르지 않습니다.');
             }
         }
-    ))
+    ));
+
+    passport.use(new GoogleStrategy(
+		{
+			clientID: GOOGLE_CLIENT_ID,
+			clientSecret: GOOGLE_CLIENT_SECRET,
+			callbackURL: `${CALLBACK_URL}/api/member/google-callback`,
+			passReqToCallback: true
+		},
+        async function (request, accessToken, refreshToken, profile, done) {
+			// console.log(profile);
+			if(profile && profile.id) {
+				const member = await memberModel.loginGoogle(request, profile);
+				return done(null, member);
+			} else {
+				return done('로그인 실패', null )
+			}
+		}
+	));
 
     app.use(async (req, res, next) => {
         const token = req.cookies.token;

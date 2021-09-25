@@ -48,7 +48,6 @@ export const actions = {
         const { $axios} = Vue.prototype
         const data = await $axios.post(`/api/member/loginLocal`, form)
         if(data && data.member) {
-            console.log('loginLocal data : ', data)
             commit('SET_MEMBER', data.member)
             //데이터 쿠키 Set
             //개발자 모드 Application -> Cookies 확인 가능
@@ -83,5 +82,11 @@ export const actions = {
         const query = qs.stringify(form)
         const data = await $axios.get(`/api/member/findPw?${query}`);
         return data
+    },
+
+    async modifyPassword(ctx, form){
+        const {$axios} = Vue.prototype
+        const data = await $axios.patch('/api/member/modifyPassword', form);
+        return data;
     }
 };

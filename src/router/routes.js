@@ -22,6 +22,11 @@ const routes = [
 		name: 'NoAuthJoin',
 		component: () => import(/* webpackChunkName: "join" */ '../views/member/Join.vue')
 	},
+	{
+		path: '/modifyPassword/:hash',
+		name: 'NoAuthModifyPassword',
+		component: () => import(/* webpackChunkName: "modify" */ '../views/member/ModifyPassword.vue')
+	},
     {
 		path: '*',
     name: 'Error',
