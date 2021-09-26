@@ -91,8 +91,35 @@ router.get('/loginGoogle', passport.authenticate('google', {scope: ['email', 'pr
 router.get('/google-callback', (req, res) => {
     //passport authenticate를 이용하여 done 함수 호출
     passport.authenticate('google', async function(err, member){
-     const result = await modelCall(memberModel.googleCallback, req, res, err, member);
+     const result = await modelCall(memberModel.socialCallback, req, res, err, member);
      res.end(result);
     })(req, res);
 })
+
+// 카카오 로그인 요청
+router.get('/loginKakao', passport.authenticate('kakao'));
+
+// 카카오 로그인 콜백
+router.get('/kakao-callback', (req, res) => {
+    //passport authenticate를 이용하여 done 함수 호출
+    passport.authenticate('kakao', async function(err, member){
+      const result = await modelCall(memberModel.socialCallback, req, res, err, member);
+    //  res.end(result);
+    console.log('member : ' ,member);
+    res.end(result);
+    })(req, res);
+})
+
+// 네이버 로그인 요청
+router.get('/loginNaver', passport.authenticate('naver'));
+
+// 네이버 로그인 콜백
+router.get('/naver-callback', (req, res) => {
+    passport.authenticate('naver', async function(err, member){
+         const result = await modelCall(memberModel.socialCallback, req, res, err, member);
+        //res.json(member);
+      res.end(result);
+      })(req, res);
+});
+
 module.exports = router;

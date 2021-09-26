@@ -9,7 +9,18 @@ const memberModel = require('../api/_model/memberModel')
 //const {Strategy : JWTStrategy, ExtractJwt} = require('passport-jwt')
 //const { SECRET_KEY } = process.env
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
-const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, CALLBACK_URL} = process.env;
+const KakaoStrategy = require('passport-kakao').Strategy;
+const NaverStrategy = require('passport-naver').Strategy;
+const {GOOGLE_CLIENT_ID, 
+       GOOGLE_CLIENT_SECRET, 
+       KAKAO_CLIENT_ID, 
+       KAKAO_CLIENT_SECRET, 
+       NAVER_CLIENT_ID, 
+       NAVER_CLIENT_SECRET, 
+       CALLBACK_URL} = process.env;
+
+
+       console.log(`${CALLBACK_URL}/api/member/kakao-callback`);
 
 module.exports = (app) => {
     // passport 초기화
@@ -36,7 +47,10 @@ module.exports = (app) => {
             }
         }
     ));
-
+    
+    // 구글 로그인
+    // request 받을 경우 passReqToCallback: true)
+    // default 값은 false임
     passport.use(new GoogleStrategy(
 		{
 			clientID: GOOGLE_CLIENT_ID,
@@ -54,6 +68,42 @@ module.exports = (app) => {
 			}
 		}
 	));
+    
+    // 카카오 로그인
+    // request 받을 경우 passReqToCallback: true)
+    // default 값은 false임
+    passport.use(new KakaoStrategy({
+        clientID : KAKAO_CLIENT_ID,
+        clientSecret: KAKAO_CLIENT_SECRET, 
+        callbackURL : `${CALLBACK_URL}/api/member/kakao-callback`,
+        passReqToCallback: true
+      },
+      async (request, accessToken, refreshToken, profile, done) => {
+        if(profile && profile.id) {
+            const member = await memberModel.loginKakao(request, profile);
+            return done(null, member);
+        } else {
+            return done('로그인 실패', null )
+        }
+      }
+))
+    
+    //네이버 로그인
+    passport.use(new NaverStrategy({
+        clientID: NAVER_CLIENT_ID,
+        clientSecret: NAVER_CLIENT_SECRET,
+        callbackURL: `${CALLBACK_URL}/api/member/naver-callback`,
+        passReqToCallback: true
+    },
+    async function(request, accessToken, refreshToken, profile, done) {   
+       if(profile && profile.id) {
+            const member = await memberModel.loginNaver(request, profile);
+            return done(null, member);
+        } else {
+            return done('로그인 실패', null )
+        }
+      }
+));
 
     app.use(async (req, res, next) => {
         const token = req.cookies.token;

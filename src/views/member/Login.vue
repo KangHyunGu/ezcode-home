@@ -29,6 +29,12 @@
       <v-card-text class="mt-n4">
         <v-btn @click="loginGoogle" block>구글 로그인</v-btn>
       </v-card-text>
+      <v-card-text class="mt-n4">
+        <v-btn @click="loginKakao" block>카카오 로그인</v-btn>
+      </v-card-text>
+      <v-card-text class="mt-n4">
+        <v-btn @click="loginNaver" block>네이버 로그인</v-btn>
+      </v-card-text>
 
       <v-card-text class="mt-n4">
         <v-btn to="/join" block>회원가입</v-btn>
@@ -94,18 +100,31 @@ export default {
         );
       }
     },
-
-    async loginGoogle() {
+    socialPopup(url) {
       const childWindow = window.open(
-        "/api/member/loginGoogle",
-        "googleAuth",
+        url,
+        "Auth",
         "top=10, left=10, width=500, height=600, status=no, menubar=no, toolbar=no, resizable=no"
       );
-      if (!window.onGoogleCallback) {
-        window.onGoogleCallback = this.googleLoginCallback;
+      if (!window.onSocialCallback) {
+        window.onSocialCallback = this.SocialCallback;
       }
     },
-    async googleLoginCallback(payload) {
+
+    // 구글 로그인
+    async loginGoogle() {
+      this.socialPopup("/api/member/loginGoogle");
+    },
+    // 카카오 로그인
+    async loginKakao() {
+      this.socialPopup("/api/member/loginKakao");
+    },
+    // 네이버 로그인
+    async loginNaver() {
+      this.socialPopup("/api/member/loginNaver");
+    },
+
+    async SocialCallback(payload) {
       if (payload.err) {
         this.$toast.err(payload.err);
       } else {

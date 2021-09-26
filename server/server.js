@@ -85,7 +85,7 @@ app.get('*', (req, res) => {
 		url : req.url,
 		title : 'Vue SSR App',
 		metas : `<!-- inject more metas -->`,
-		member : req.user,
+		member : req.user || null,
 		token : req.cookies.token || null
 	};
 	
