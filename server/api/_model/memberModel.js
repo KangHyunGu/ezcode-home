@@ -1,4 +1,6 @@
 const fs = require('fs')
+const url = require('url');
+const path = require('path');
 const db = require('../../plugins/mysql')
 const jwt = require('../../plugins/jwt')
 const sendMailer = require('../../plugins/sendMailer');
@@ -65,10 +67,13 @@ const memberModel = {
             mb_create_ip : ip,
             mb_update_at : at,
             mb_update_ip : ip,
+           
         }
         // 이미지 업로드 처리
         delete payload.mb_image;
+        const fileName = jwt.getRendToken(16)
         if(req.files && req.files.mb_image){
+            payload.mb_photo = `/upload/memberPhoto/${fileName}.jpg?`
             //param 1 : filePath
             //param 2 : collback(err)
             req.files.mb_image.mv(`${MEMBER_PHOTO_PATH}/${payload.mb_id}.jpg`, (err) => {
@@ -78,6 +83,7 @@ const memberModel = {
                 }
             });
         }
+    
         // 비밀번호 암호화(sha512 Hash함수)
         payload.mb_password = jwt.generatePassword(payload.mb_password);
         const sql = sqlHelper.Insert(TABLE.MEMBER, payload)
@@ -85,6 +91,82 @@ const memberModel = {
         //console.log(sql);
         //console.log(row);
         return row.affectedRows == 1;
+    },
+    async updateMember(req) {
+        const at = moment().format('LT');
+        const ip = getIp(req);
+
+        const payload = {
+            ...req.body,
+            //mb_password : 암호화(추후 처리)
+            mb_update_at : at,
+            mb_update_ip : ip,
+        }
+     
+        //레벨은 관리자 모드 admMode true
+        const admMode = payload.admMode;
+        const mb_id = payload.mb_id;
+        const deleteImage = payload.deleteImage;
+        delete payload.admMode;
+        delete payload.mb_id;
+        delete payload.deleteImage;
+       
+        // 비밀번호 값이 존재 할 경우 변경
+        if(payload.mb_password) {
+            payload.mb_password = jwt.generatePassword(payload.mb_password);
+        } else {
+            delete payload.mb_password
+        }
+
+        // 이미지 업로드 처리(변경)
+        delete payload.mb_image;
+        const mb_photo = payload.mb_photo;
+        delete payload.mb_photo;
+         
+        const photoURL = url.parse(mb_photo, true);
+        const photoPathInfo = path.parse(photoURL.pathname);
+        const oldName = photoPathInfo.name;
+        const oldFile = `${MEMBER_PHOTO_PATH}/${oldName}.jpg`
+        const cachePath = `${MEMBER_PHOTO_PATH}/.cache`;
+
+        if(deleteImage || req.files && req.files.mb_image){
+            // 할 일 기존 이미지 삭제(추후 처리)
+            // 기존 파일이 있을 경우 우선 null 처리
+            payload.mb_photo = null
+            try{
+                fs.unlinkSync(oldFile);
+                 // Cache 파일들 삭제...
+                const cacheDir = fs.readdirSync(cachePath)
+                for(const p of cacheDir){
+                    try{
+                     if(p.startsWith(oldName)){
+                        fs.unlinkSync(`${cachePath}/${p}`);
+                     }
+                    } catch(e) {}
+                }
+
+            } catch(e){
+               // console.log('file delete error', e.message);
+            }
+        }
+
+        if(req.files && req.files.mb_image){
+            const newName = jwt.getRendToken(16);
+            payload.mb_photo = `/upload/memberPhoto/${newName}.jpg?`
+            const newFile = `${MEMBER_PHOTO_PATH}/${newName}.jpg`
+           req.files.mb_image.mv(newFile, (err) => {
+               //이미지 업로드 중 오류 시
+               if(err){
+                   console.log('Member Image Upload Error', err)
+               }
+           });
+           // TODO : 버전을 올려서 바꿔준다
+            // 다른 provider(Google, kakao, naver)로 할 경우 mb_photo가 존재...
+            //길이 만큼 랜덤한 값을 가져와서 파일 명 생성
+        }
+        const sql = sqlHelper.Update(TABLE.MEMBER, payload, {mb_id});
+        const [row] = await db.execute(sql.query, sql.values);  
+        return await memberModel.getMemberBy({mb_id});  
     },
     async getMemberBy(form, cols = []) {
         // {mb_id : 'test', mb_password : hash(mb_password)}
@@ -308,6 +390,22 @@ const memberModel = {
 		return html;
 	},
 
+    // 회원 수정 전 비밀번호 확인
+    async checkPassword(req) {
+        if(!req.user) {
+            throw new Error('로그인 되어 있지 않습니다.');
+        }
+        const data = {
+            mb_id : req.user.mb_id,
+            mb_password : await jwt.generatePassword(req.body.mb_password)
+        } 
+        const sql = sqlHelper.SelectSimple(TABLE.MEMBER, data, ['COUNT(*) as cnt'])
+        const [[{cnt}]] = await db.execute(sql.query, sql.values);
+        if(cnt == 0) {
+            throw new Error('비밀번호가 일치 하지 않습니다.')
+        }
+        return true;
+    }
 }
 
 module.exports = memberModel;

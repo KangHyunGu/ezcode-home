@@ -21,9 +21,9 @@
               :loading="loading"
             >
               <v-icon>mdi-check</v-icon>
-            </v-btn>
+            </v-btn> 
           </template>
-          {{ $attrs.label}} 중복검사
+          {{ $attrs.label}} 중복검사 
         </v-tooltip>
     </template>
   </v-text-field>
@@ -49,7 +49,7 @@ export default {
   },
    data() {
     return {
-      isCheck: false,
+      isCheck: this.origin ? true : !this.cbCheck,
       loading: false,
       errMsg : "",
       successMsg : "",

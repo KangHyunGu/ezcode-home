@@ -18,7 +18,13 @@ router.post('/', async (req, res) => {
     res.json(result);
 })
 
-// 로그인
+// 회원정보 수정
+router.patch('/', async (req, res) => {
+    const result = await modelCall(memberModel.updateMember, req);
+    res.json(result);
+})
+
+// 로컬 로그인
 router.post('/loginLocal', async (req, res) => {
     //passport authenticate를 이용하여 done 함수 호출
     passport.authenticate('local', function(err, member, info){
@@ -121,5 +127,11 @@ router.get('/naver-callback', (req, res) => {
       res.end(result);
       })(req, res);
 });
+
+// 회원 수정 전 비밀번호 확인
+router.post('/checkPassword', async(req, res) => {
+    const result = await modelCall(memberModel.checkPassword, req);
+    res.json(result);
+})
 
 module.exports = router;
