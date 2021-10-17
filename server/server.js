@@ -80,6 +80,8 @@ app.get('*', (req, res) => {
 		template,
 		clientManifest,
 	});
+
+	console.log(renderer);
 	console.log('server.js * router');
 	const ctx = {
 		url : req.url,

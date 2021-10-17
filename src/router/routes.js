@@ -27,6 +27,12 @@ const routes = [
 		name: 'NoAuthModifyPassword',
 		component: () => import(/* webpackChunkName: "modify" */ '../views/member/ModifyPassword.vue')
 	},
+	//관리자 페이지
+	{
+		path: '/adm/config',
+		name: 'AdmConfig',
+		component: () => import(/* webpackChunkName: "modify" */ '../views/admin/Config.vue')
+	},
     {
 		path: '*',
     name: 'Error',

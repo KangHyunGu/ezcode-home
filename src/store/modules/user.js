@@ -1,5 +1,6 @@
 import Vue from "vue";
 import qs from 'qs'
+import {LV} from '../../../util/level' 
 
 export const state = () => ({
     member : null,
@@ -17,7 +18,16 @@ export const mutations = {
 };
 
 export const getters = {
-
+    // 관리자 체크
+    isAdmin(state) {
+        console.log('LV.ADMIN : ' , LV.ADMIN)
+        return state.member && state.member.mb_level >= LV.ADMIN;
+    },
+    // Super User 체크
+    isSuper(state){
+        return state.member && state.member.mb_level >=
+        LV.SUPER;
+    }
 };
 
 export const actions = {
