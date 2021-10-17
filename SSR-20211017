@@ -1,0 +1,11 @@
+$router 사용시
+    현재 페이지와 이동 대상 페이지가 같은 경우 dulicate Error 남
+    ex) 현재 페이지 Home('/')
+    this.$router.push('/') ==> Error
+
+    if(this.$route.name != 'Home'){
+         this.$router.push('/')
+    }
+
+관리자
+    그누보드 활용

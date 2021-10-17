@@ -45,6 +45,7 @@
             :isLoding="isLoading"
             :cbCheckEmail="checkEmail"
             @OnSave="save"
+            @OnLeave="leave"
           />
         </v-card-text>
       </v-card>
@@ -79,7 +80,12 @@ export default {
     this.getDarkMode();
   },
   methods: {
-    ...mapActions("user", ["duplicateCheck", "checkPassword", "updateMember"]),
+    ...mapActions("user", [
+      "duplicateCheck",
+      "checkPassword",
+      "updateMember",
+      "signOut",
+    ]),
     setDarkMode(mode) {
       this.$vuetify.theme.dark = mode;
       localStorage.setItem("darkMode", mode ? "dark" : "light");
@@ -91,25 +97,24 @@ export default {
     async checkMember() {},
     async openDialog() {
       //임시
-      this.dialog = true;
+      //this.dialog = true;
 
-      //    if(!this.member.mb_provider){
-      //     //소셜 로그인이 아닌 경우 password 체크
-      //     const mb_password = await this.$ezNotify.prompt(
-      //         '비밀번호를 입력하세요',
-      //         '회원정보 수정',
-      //     {icon : 'mdi-alert',  formType:'password'}
-      //     );
+      if (!this.member.mb_provider) {
+        //소셜 로그인이 아닌 경우 password 체크
+        const mb_password = await this.$ezNotify.prompt(
+          "비밀번호를 입력하세요",
+          "회원정보 수정",
+          { icon: "mdi-alert", formType: "password" }
+        );
 
-      //     //페스워드가 입력이 되어 있다면...
-      //     if(mb_password){
-      //        this.dialog = await this.checkPassword({mb_password});
-      //     }
-
-      //    } else {
-      //        //소셜 로그인일 경우 비밀번호 확인은 Skip
-      //         this.dialog = true;
-      //    }
+        //페스워드가 입력이 되어 있다면...
+        if (mb_password) {
+          this.dialog = await this.checkPassword({ mb_password });
+        }
+      } else {
+        //소셜 로그인일 경우 비밀번호 확인은 Skip
+        this.dialog = true;
+      }
     },
 
     closeDialog() {
@@ -121,10 +126,42 @@ export default {
       const data = await this.updateMember(form);
       this.isLoading = false;
       if (data) {
-        this.closeDialog();
         this.$toast.info(
           `${this.$store.state.user.member.mb_name}님 회원정보수정이 완료되었습니다.`
         );
+        this.closeDialog();
+      }
+    },
+
+    async leave() {
+      this.isLoading = true;
+
+      // 회원 탈퇴 안내 확인
+      const result = await this.$ezNotify.confirm(
+        "정말로 탈퇴하시겠습니까?",
+        "회원탈퇴",
+        {
+          icon: "mbi-alert",
+        }
+      );
+
+      if (!result) return;
+      const form = {
+        mb_id: this.member.mb_id,
+        mb_leave_at: this.$moment().format("LT"),
+      };
+      const data = await this.updateMember(form);
+      this.isLoading = false;
+      if (data) {
+        // this.$toast.info(
+        //   `${this.$store.state.user.member.mb_name}님 탈퇴하였습니다.`
+        // );
+        this.closeDialog();
+        const mb_name = await this.signOut();
+        this.$toast.info(`${mb_name}님이 탈퇴 하였습니다.`);
+        if (this.$route.name != "Home") {
+          this.$router.push("/");
+        }
       }
     },
 

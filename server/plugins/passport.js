@@ -11,6 +11,8 @@ const memberModel = require('../api/_model/memberModel')
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const KakaoStrategy = require('passport-kakao').Strategy;
 const NaverStrategy = require('passport-naver').Strategy;
+const {LV, LV_LABEL} = require('../../util/level');
+
 const {GOOGLE_CLIENT_ID, 
        GOOGLE_CLIENT_SECRET, 
        KAKAO_CLIENT_ID, 
@@ -19,8 +21,19 @@ const {GOOGLE_CLIENT_ID,
        NAVER_CLIENT_SECRET, 
        CALLBACK_URL} = process.env;
 
-
-       console.log(`${CALLBACK_URL}/api/member/kakao-callback`);
+// 로그인 규칙
+function loginResult(member){
+    
+    if(member.mb_leave_at) {
+        return '탈퇴 회원 입니다.'
+    }
+    switch(member.mb_level){
+        case LV.AWAIT:
+            return '대기 회원입니다.'
+        case LV.BLOCK:
+            return '차단 회원입니다.'    
+    }
+}
 
 module.exports = (app) => {
     // passport 초기화
@@ -39,6 +52,14 @@ module.exports = (app) => {
                 mb_password = jwt.generatePassword(mb_password);
                 //아이디 및 비밀번호를 저장 된 DB검색
                 const member = await memberModel.getMemberBy({mb_id, mb_password});
+                
+                // 로그인 체크..
+                const msg = loginResult(member);
+                if(msg) {
+                    return done(null, null, msg);
+                }
+                
+                // 체크 후 완료
                 return done(null, member);
 
             } catch(e) {
@@ -59,9 +80,13 @@ module.exports = (app) => {
 			passReqToCallback: true
 		},
         async function (request, accessToken, refreshToken, profile, done) {
-			// console.log(profile);
 			if(profile && profile.id) {
 				const member = await memberModel.loginGoogle(request, profile);
+                const msg = loginResult(member);
+                console.log('msg : ', msg);
+                if(msg) {
+                    return done(msg, null, null);
+                }
 				return done(null, member);
 			} else {
 				return done('로그인 실패', null )
@@ -81,6 +106,10 @@ module.exports = (app) => {
       async (request, accessToken, refreshToken, profile, done) => {
         if(profile && profile.id) {
             const member = await memberModel.loginKakao(request, profile);
+            const msg = loginResult(member);
+            if(msg) {
+                return done(msg, null, null);
+            }
             return done(null, member);
         } else {
             return done('로그인 실패', null )
@@ -98,13 +127,17 @@ module.exports = (app) => {
     async function(request, accessToken, refreshToken, profile, done) {   
        if(profile && profile.id) {
             const member = await memberModel.loginNaver(request, profile);
+            const msg = loginResult(member);
+            if(msg) {
+                return done(msg, null, null);
+            }
             return done(null, member);
         } else {
             return done('로그인 실패', null )
         }
       }
 ));
-
+    // 토큰 인증 처리
     app.use(async (req, res, next) => {
         const token = req.cookies.token;
         if(!token) return next();
@@ -112,6 +145,10 @@ module.exports = (app) => {
         if(!mb_id) return next();
         try{
             const member = await memberModel.getMemberBy({mb_id});
+            const msg = loginResult(member);
+            if(msg) {
+                return next();
+            }
             req.login(member, {session:false}, (err) => {})
         } catch(e){
             console.log('auth error ', e)
