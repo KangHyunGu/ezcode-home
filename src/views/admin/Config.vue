@@ -16,13 +16,14 @@
       dark
       color="primary"
     >
-      <config-form @save="test"></config-form>
+      <config-form @save="save"></config-form>
     </ez-dialog>
     <!-- // 설정 다이얼로그 -->
   </v-container>
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import EzDialog from "../../components/etc/EzDialog.vue";
 import TooltipBtn from "../../components/etc/TooltipBtn.vue";
 import ConfigForm from "./ConfigComponents/ConfigForm.vue";
@@ -30,16 +31,21 @@ export default {
   components: { TooltipBtn, EzDialog, ConfigForm },
   name: "admConfig",
   data() {
-    return {
-      dialog: false,
-    };
+    return {};
   },
   methods: {
+    ...mapActions(["configDuplicateCheck", "configSave"]),
     addConfig() {
       this.$refs.dialog.open();
     },
-    test(form) {
+    async save(form) {
+      console.log(form);
+      const data = await this.configSave(form);
       this.$refs.dialog.close();
+    },
+    async keyCheck(value) {
+      const data = await this.configDuplicateCheck({ field: "cf_key", value });
+      return data;
     },
   },
 };
