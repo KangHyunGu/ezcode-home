@@ -24,5 +24,11 @@ router.put('/', async(req, res)=>{
 	res.json(result);
 })
 
+// 삭제
+router.delete('/:cf_key', async(req, res)=>{
+	const result = await modelCall(configModel.remove, req);
+	res.json(result);
+})
+
 
 module.exports = router;
