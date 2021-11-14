@@ -4,6 +4,7 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
+
 (async function(){
 	// 앱 초기화
 	const app = express();
@@ -95,7 +96,8 @@ const fs = require('fs');
 			title : 'Vue SSR App',
 			metas : `<!-- inject more metas -->`,
 			member : req.user || null,
-			token : req.cookies.token || null
+			token : req.cookies.token || null,
+			config : clientConfig,
 		};
 		
 		const stream = renderer.renderToStream(ctx);

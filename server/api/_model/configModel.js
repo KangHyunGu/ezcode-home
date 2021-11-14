@@ -8,26 +8,39 @@ const configModel = {
 	async load() {
 		const sql = sqlHelper.SelectSimple(TABLE.CONFIG, null, ['cf_key', 'cf_val', 'cf_client', 'cf_type']);
 		const [rows] = await db.execute(sql.query);
-		const config = {}; 
-		const clientConfig = {};
+		global.siteConfig = {};
+		global.clientConfig = {};
 		for(const row of rows){
-			let val;
-			if(row.cf_type == 'Json'){
-				//type Json 형태 일 경우 Parsing이 필요
-				val = JSON.parse(row.cf_val);
-			} else {
-				val = row.cf_val
-			}
-			
-			if(row.cf_client == 1){
-				clientConfig[row.cf_key] = val
-			} else {
-				config[row.cf_key] = val
-			}
+			configModel.setConfigItem(row);
+		}
+	},
+	setConfigItem(item) {
+		configModel.clearConfigItem(item.cf_key);
+		let val;
+		if(item.cf_type == 'Json'){
+			//type Json 형태 일 경우 Parsing이 필요
+			val = JSON.parse(item.cf_val);
+		} else {
+			val = item.cf_val
+		}
+		
+		if(item.cf_client == 1){
+			clientConfig[item.cf_key] = val
+		} else {
+			siteConfig[item.cf_key] = val
 		}
 
-		global.siteConfig = config;
-		global.clientConfig = clientConfig;
+		console.log(item.cf_key, item);
+
+	},
+	clearConfigItem(cf_key){
+		console.log('delete', cf_key)
+		delete clientConfig[cf_key]
+		delete siteConfig[cf_key]
+		console.log('설정 로드')
+		console.log(siteConfig)
+		console.log('client config')
+		console.log(clientConfig)
 	},
 	async duplicateCheck({ field, value }) {
 		const sql = sqlHelper.SelectSimple(
@@ -45,17 +58,18 @@ const configModel = {
 			if(!isGrant(req, LV.ADMIN)) {
 				throw new Error('관리자 설정 목록 권한이 없습니다.')
 			}
+			const sort = {
+				cf_group : true,
+				cf_sort : true,
+			}
+		
+			const sql = sqlHelper.SelectSimple(TABLE.CONFIG, where, [], sort);
+			const [rows] = await db.execute(sql.query, sql.values);
+			return rows;
 		} else {
-			where.cf_client = 1;
+		//	where.cf_client = 1;
+			return clientConfig;
 		}
-		const sort = {
-			cf_group : true,
-			cf_sort : true,
-		}
-	
-		const sql = sqlHelper.SelectSimple(TABLE.CONFIG, where, [], sort);
-		const [rows] = await db.execute(sql.query, sql.values);
-		return rows;
 	}, 
 	async post(data) {
 		// const data = req.body;
@@ -71,12 +85,14 @@ const configModel = {
 
 		const sql = sqlHelper.InsertOrUpdate(TABLE.CONFIG, data);
 		const [row] = await db.execute(sql.query, sql.values); 
-		configModel.load();
+		configModel.setConfigItem(data);
 		return data; // 업뎃된거 넘겨줄거고
 	},
-	async put(req) {
+	async put(req) { // 정렬
 		req.body.forEach((item)=>{
-			configModel.post(item);
+			const {cf_key, cf_sort} = item;
+			const sql = sqlHelper.Update(TABLE.CONFIG, {cf_sort}, {cf_key})
+			db.execute(sql.query, sql.values)
 		})
 		return true;
 	},
@@ -88,9 +104,10 @@ const configModel = {
 		const sql = sqlHelper.DeleteSimple(TABLE.CONFIG, {cf_key});
 		const [row] = await db.execute(sql.query, sql.values);
 
-		configModel.load();
+		configModel.clearConfigItem(row); //설정 값 삭제
 		return row.affectedRows == 1;
 	}
+
 };
 
 module.exports = configModel;

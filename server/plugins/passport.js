@@ -39,7 +39,7 @@ function loginResult(member){
 module.exports = (app) => {
     // passport 초기화
     app.use(passport.initialize());
-
+   
     passport.use(new LocalStrategy(
         //param 1
         {
@@ -53,7 +53,6 @@ module.exports = (app) => {
                 mb_password = jwt.generatePassword(mb_password);
                 //아이디 및 비밀번호를 저장 된 DB검색
                 const member = await memberModel.getMemberBy({mb_id, mb_password});
-                
                 // 로그인 체크..
                 const msg = loginResult(member);
                 if(msg) {

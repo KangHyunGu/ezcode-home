@@ -59,6 +59,7 @@ router.post('/loginLocal', async (req, res) => {
 
 // 인증
 router.get('/auth', (req, res) => {
+    console.log('api 인증...');
     const member = req.user || null;
     const token = req.cookies.token || null;
     console.log('auth 인증', req.user);

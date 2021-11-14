@@ -146,8 +146,10 @@ export default {
     sortEnd() {
       // 현제 curItems 있는 정보로 cf_sort 업데이트 전체
       let i = 0;
+      const payload = [];
       this.curItems.forEach((item) => {
         item.cf_sort = i++;
+        payload.push({ cf_key: item.cf_key, cf_sort: item.cf_sort });
       });
       this.$axios.put("/api/config", this.curItems);
     },

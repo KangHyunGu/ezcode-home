@@ -5,7 +5,7 @@ export default (ctx) => {
 		const { app, router, store } = createApp(ctx);
 		await store.dispatch('appInit', ctx);
 		router.push(ctx.url); //router/index.js
-		
+		console.log('ctx : ', ctx);
 		router.onReady(() => {
 			
 			ctx.rendered = () => ctx.state = store.state;
