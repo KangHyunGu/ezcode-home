@@ -1,8 +1,10 @@
 require('dotenv').config();
+require('./plugins/pm2Bus')
 const express = require('express');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
+
 
 
 (async function(){
@@ -14,8 +16,15 @@ const fs = require('fs');
 	// 설치 정보 // DB 정보가 있는지
 
 	// 설정정보 로드
+	console.log('설정 로드 전')
 	const configModel = require('./api/_model/configModel');
 	await configModel.load();
+	console.log('설정 로드 후')
+
+	setInterval(() => {
+		console.log('test site->', siteConfig.test1)
+		console.log('test title->', clientConfig.test1);
+	}, 5000)
 
 	let isDiasbleKeppAlive = false;
 	app.use((req, res, next) => {

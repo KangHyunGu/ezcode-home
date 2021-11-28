@@ -11,11 +11,11 @@ const configModel = {
 		global.siteConfig = {};
 		global.clientConfig = {};
 		for(const row of rows){
-			configModel.setConfigItem(row);
+			configModel.setConfigItem(row, true);
 		}
 	},
-	setConfigItem(item) {
-		configModel.clearConfigItem(item.cf_key);
+	setConfigItem(item, isLoad = false) {
+		configModel.clearConfigItem(item.cf_key, isLoad);
 		let val;
 		if(item.cf_type == 'Json'){
 			//type Json 형태 일 경우 Parsing이 필요
@@ -30,17 +30,27 @@ const configModel = {
 			siteConfig[item.cf_key] = val
 		}
 
-		console.log(item.cf_key, item);
+		// 초기로드가 아니면 메세지 보낸다.
+		if(!isLoad) {
+			process.send({
+				type: 'config:update',
+				data : item,
+			});
+		}
+		//console.log(item.cf_key, item);
 
 	},
-	clearConfigItem(cf_key){
-		console.log('delete', cf_key)
+	clearConfigItem(cf_key, isLoad = false){
 		delete clientConfig[cf_key]
 		delete siteConfig[cf_key]
-		console.log('설정 로드')
-		console.log(siteConfig)
-		console.log('client config')
-		console.log(clientConfig)
+		//초기로드가 아니면 메세지 보낸다.
+		if(!isLoad) {
+			console.log('cf_key : ' , cf_key);
+			process.send({
+				type: 'config:remove',
+				data : cf_key,
+			});
+		}
 	},
 	async duplicateCheck({ field, value }) {
 		const sql = sqlHelper.SelectSimple(

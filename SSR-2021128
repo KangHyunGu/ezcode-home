@@ -1,0 +1,11 @@
+* pm2 process간 통신
+
+pm2 start ecosystem.config.js --watch
+--watch 변경 감지 처리
+
+
+pm2 javascript API 추가
+
+yarn add pm2
+
+문서 참조 : https://pm2.keymetrics.io/docs/usage/pm2-api/

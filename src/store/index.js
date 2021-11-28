@@ -25,20 +25,19 @@ const store = new Vuex.Store({
 			}	
 		}
     },
-    actions: {
-		async appInit({dispatch, commit}, ctx) {
-			// 사이트 설정을 가지고 옴
-			if(ctx) {
-				const keys = Object.keys(ctx.config)
-				for(const key of keys){
-					console.log(typeof(key), ' ', key, value);
-					commit('SET_CONFIG', {key, value: ctx.config[key]})
+	actions: {
+		async appInit({ dispatch, commit }, ctx) {
+			// 사이트 설정을 가지고 올꺼고
+			if (ctx) {
+				const keys = Object.keys(ctx.config);
+				for (const key of keys) {
+					commit('SET_CONFIG', { key, value: ctx.config[key] });
 				}
-				commit('user/SET_MEMBER', ctx.member)
-				commit('user/SET_TOKEN', ctx.token)
+				commit('user/SET_MEMBER', ctx.member);
+				commit('user/SET_TOKEN', ctx.token);
 			} else {
-				await dispatch('configLoad')
-				await dispatch('user/initUser')
+				await dispatch('configLoad');
+				await dispatch('user/initUser');
 			}
 			commit('SET_APP_READY');
 		},
