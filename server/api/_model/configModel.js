@@ -1,5 +1,4 @@
 const db = require('../../plugins/mysql');
-
 const TABLE = require('../../../util/TABLE');
 const { LV, isGrant } = require('../../../util/level');
 const sqlHelper = require('../../../util/sqlHelper');
@@ -10,47 +9,43 @@ const configModel = {
 		const [rows] = await db.execute(sql.query);
 		global.siteConfig = {};
 		global.clientConfig = {};
-		for(const row of rows){
-			configModel.setConfigItem(row, true);
+		for(const row of rows) {
+			configModel.setConfigItem(row);
 		}
+		console.log('설정 로드')
+		// console.log(siteConfig);
+		// console.log('client config');
+		// console.log(clientConfig);
 	},
-	setConfigItem(item, isLoad = false) {
-		configModel.clearConfigItem(item.cf_key, isLoad);
+	setConfigItem(item) {
+		configModel.clearConfigItem(item.cf_key);
+
 		let val;
-		if(item.cf_type == 'Json'){
-			//type Json 형태 일 경우 Parsing이 필요
+		if(item.cf_type == "Json") {
 			val = JSON.parse(item.cf_val);
 		} else {
-			val = item.cf_val
+			val = item.cf_val;
 		}
 		
-		if(item.cf_client == 1){
-			clientConfig[item.cf_key] = val
+		if(item.cf_client == 1) {
+			clientConfig[item.cf_key] = val;
 		} else {
-			siteConfig[item.cf_key] = val
+			siteConfig[item.cf_key] = val;
 		}
-
-		// 초기로드가 아니면 메세지 보낸다.
-		if(!isLoad) {
-			process.send({
-				type: 'config:update',
-				data : item,
-			});
-		}
-		//console.log(item.cf_key, item);
-
+		// console.log(item.cf_key, val);
+		// console.log('설정 로드')
+		// console.log(siteConfig);
+		// console.log('client config');
+		// console.log(clientConfig);
 	},
-	clearConfigItem(cf_key, isLoad = false){
-		delete clientConfig[cf_key]
-		delete siteConfig[cf_key]
-		//초기로드가 아니면 메세지 보낸다.
-		if(!isLoad) {
-			console.log('cf_key : ' , cf_key);
-			process.send({
-				type: 'config:remove',
-				data : cf_key,
-			});
-		}
+	clearConfigItem(cf_key) {
+		// console.log('delete', cf_key);
+		delete clientConfig[cf_key];
+		delete siteConfig[cf_key];
+		// console.log('설정 로드')
+		// console.log(siteConfig);
+		// console.log('client config');
+		// console.log(clientConfig);
 	},
 	async duplicateCheck({ field, value }) {
 		const sql = sqlHelper.SelectSimple(
@@ -72,51 +67,41 @@ const configModel = {
 				cf_group : true,
 				cf_sort : true,
 			}
-		
 			const sql = sqlHelper.SelectSimple(TABLE.CONFIG, where, [], sort);
 			const [rows] = await db.execute(sql.query, sql.values);
 			return rows;
 		} else {
-		//	where.cf_client = 1;
+			// where.cf_client = 1;
 			return clientConfig;
 		}
+		
 	}, 
 	async post(data) {
-		// const data = req.body;
-
-		// const maxSql = sqlHelper.SelectSimple(
-		// 	TABLE.CONFIG, 
-		// 	{cf_group : data.cf_group}, 
-		// 	['IFNULL(MAX(cf_sort), -1) AS max']
-		// );
-
-		// const [[{max}]] = await db.execute(maxSql.query, maxSql.values);
-		// data.cf_sort = max+1;
-
 		const sql = sqlHelper.InsertOrUpdate(TABLE.CONFIG, data);
-		const [row] = await db.execute(sql.query, sql.values); 
+		const [row] = await db.execute(sql.query, sql.values);
 		configModel.setConfigItem(data);
 		return data; // 업뎃된거 넘겨줄거고
 	},
 	async put(req) { // 정렬
+		//{cf_key, cf_sort}
 		req.body.forEach((item)=>{
 			const {cf_key, cf_sort} = item;
-			const sql = sqlHelper.Update(TABLE.CONFIG, {cf_sort}, {cf_key})
-			db.execute(sql.query, sql.values)
+			const sql = sqlHelper.Update(TABLE.CONFIG, {cf_sort}, {cf_key});
+			db.execute(sql.query, sql.values);
 		})
 		return true;
 	},
 	async remove(req) {
 		if(!isGrant(req, LV.SUPER)) {
-			throw new Error('최고관리자만 삭제가 가능합니다.')
+			throw new Error('최고관리자만 삭제가 가능합니다.');
 		}
 		const {cf_key} = req.params;
 		const sql = sqlHelper.DeleteSimple(TABLE.CONFIG, {cf_key});
 		const [row] = await db.execute(sql.query, sql.values);
 
-		configModel.clearConfigItem(row); //설정 값 삭제
+		configModel.clearConfigItem(cf_key);// 설정값 삭제
 		return row.affectedRows == 1;
-	}
+	},
 
 };
 

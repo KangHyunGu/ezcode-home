@@ -57,6 +57,10 @@ module.exports = {
             '/upload' : {
                 target : `http://localhost:${process.env.VUE_APP_SERVER_PORT}`
             },
+            '/socket.io' : {
+                target : `http://localhost:${process.env.VUE_APP_SERVER_PORT}`,
+                ws: true
+            }
         },
         // ESLint Error(router.index (from, to) error )
         // Vue CLI 3 버전 후반대부터 현재 4 버전까지 ESLint 에러를 
