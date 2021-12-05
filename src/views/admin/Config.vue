@@ -100,6 +100,9 @@ export default {
     },
     updateConfig(item) {
       this.item = item;
+      if (this.$refs.configForm) {
+        this.$refs.configForm.init();
+      }
       this.$refs.dialog.open();
     },
     async removeConfig(item) {
@@ -128,7 +131,6 @@ export default {
     },
     async save(form) {
       const data = await this.configSave(form);
-      console.log(this.item);
       if (data.cf_client) {
         this.$socket.emit("config:update", {
           key: data.cf_key,

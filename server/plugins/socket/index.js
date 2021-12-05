@@ -1,9 +1,15 @@
-const {Server} = require('socket.io')
+require('dotenv').config();
+const {Server} = require('socket.io');
+const redisAdapter = require('socket.io-redis');
 const configHandler = require('./configHandler');
+
+const {REDIS_HOST, REDIS_PORT} = process.env;
 
 module.exports = function(webServer){
     //socket Io 생성
     const io = new Server(webServer);
+    //참조 url : https://www.npmjs.com/package/socket.io-redis
+    io.adapter(redisAdapter({host: REDIS_HOST, port: REDIS_PORT}))
   
     //socket Io 연결 될 경우
     io.on('connection', (socket) => {
