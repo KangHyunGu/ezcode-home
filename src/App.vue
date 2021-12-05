@@ -44,21 +44,34 @@ export default {
       return this.$vuetify.breakpoint.xs ? "100%" : "360";
     },
   },
+  socket() {
+    return {
+      "config:update": (data) => {
+        this.SET_CONFIG(data);
+      },
+      "config:remove": (key) => {
+        this.SET_CONFIG({ key, value: null });
+      },
+    };
+  },
+
   mounted() {
     // 한 서버에 접속한 모든 client Sync
-    this.$socket.on("config:update", (data) => {
-      this.SET_CONFIG(data);
-    });
-
-    this.$socket.on("config:remove", (key) => {
-      console.log(key);
-      this.SET_CONFIG({ key, value: null });
-    });
+    // this.$socket.on("config:update", (data) => {
+    //   try {
+    //     data.value = JSON.parse(data.value);
+    //   } catch (e) {}
+    //   this.SET_CONFIG(data);
+    // });
+    // this.$socket.on("config:remove", (key) => {
+    //   console.log(key);
+    //   this.SET_CONFIG({ key, value: null });
+    // });
   },
 
   destroyed() {
-    this.$socket.off("config:update");
-    this.$socket.off("config:remove");
+    // this.$socket.off("config:update");
+    // this.$socket.off("config:remove");
   },
   methods: {
     ...mapMutations(["SET_CONFIG"]),

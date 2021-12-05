@@ -18,6 +18,12 @@ const store = new Vuex.Store({
 			state.appReady = true;
 		},
 		SET_CONFIG(state, {key, value}) {
+
+			// JSON parsing 할때 Type이 맞지 않아 error 나는 경우가 있음
+			try {
+				value = JSON.parse(value);
+			} catch(e){}
+
 			if(state.config[key]){
 				state.config[key] = value;
 			} else {
