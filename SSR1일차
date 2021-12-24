@@ -1,0 +1,97 @@
+public ip : 132.226.21.182
+
+key 파일 : oracle-cloud.key
+ 경로 : C:\Users\gusrn\OneDrive\바탕 화면\oracle-cloud\
+
+접근 방법
+1. key 파일 있는 디렉토리 내 마우스 우측 클릭(git Bash here)
+2. chmod 600 [key파일](ssh-key-2021-06-26.key)
+-> chmod 600 ssh-key-2021-06-26.key
+3. ssh -i [key파일] [ubuntu@오라클 클라우드에 지정 된 퍼블릭 IP]
+-> ssh -i ssh-key-2021-06-26.key ubuntu@132.226.21.182
+
+인바운드 규칙 추가
+1. ubuntu shell
+-> sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
+(80포트 추가)
+
+->sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
+(443포트 추가)
+
+->  sudo netfilter-persistent save
+(iptables 변경 된 항목 적용)
+
+2. oracle cloud 인바운드 규칙 추가 변경 
+-> Primary VNIC -> subnet-xxxx-xxxx 선택 ->Security Lists(등록 된 항목 선택) ->
+Ingress Rules(Add Ingress Rules) 클릭 -> 
+
+Ingress Rule 1 화면
+1. STATELESS 체크 상태 : true
+2. SOURCE CIDRS : 0.0.0.0/0(모든 대역폭 허용)
+3. DESTINATION PORT RANGE : 80(추가 할 포트명)
+4. DESCRIPTION : HTTP(80) 또는 HTTPS(443)
+
+* 도메인 등록
+ezhome.kro.kr
+
+
+*ubuntu mysql 설정 
+default-character-set=utf8mb4
+(utf8로 지정 했을 경우 영문-한글 지원 대신 3byte)
+(utf8mb4로 지정 했을 경우 영문-한글-이모티콘 지원 4byte)
+
+* oracle cloud ubuntu nodeJs 최신 버전 설치
+curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+sudo apt -y install nodejs
+
+* git 터미널 설정
+- git config --global user.name "KangHyunGu" git  => 이름 설정
+- git config --global user.email "gusrn45@naver.com"  => git 아이디 설정
+- git config --global core.autocrlf input 
+- git commit -m 'first commit' => 변경 된 파일 commit -m는 commit시 메세지
+- git add README.md
+
+
+* VScode 자동 정렬
+window : ctrl + k + f
+macOs : command + k + f
+
+
+* ubuntu apache2 설정
+ubuntu@instance-20210626-1555:~/ezcode-home$ cd ~ => 홈 디렉토리로 이동
+ubuntu@instance-20210626-1555:~$ cd /etc/apache2/ => /etc/apache2/ 디렉토리로 이동
+ubuntu@instance-20210626-1555:/etc/apache2$ cd sites-available => sites-available 디렉토리로 이동
+sudo touch 001-ezhome.conf => /etc/apache2/ 내 001-ezhome.conf 파일 생성
+
+
+ubuntu@instance-20210626-1555:/etc/apache2/sites-available$ ls ~
+ezcode-home => ezcode-home 경로 확인
+
+
+ubuntu@instance-20210626-1555:/etc/apache2/sites-available$ sudo nano 001-ezhome.conf
+=> 001-ezhome-home.conf 파일 편집기 실행
+
+=> 001-ezhome-home.conf 내 아래와 같이 입력 후 저장
+
+/etc/apache2/sites-available/001-ezhome-home.conf
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /home/ubuntu/ezcode-home/dist
+        ServerName gnu.ezcode.kr
+        ErrorLog ${APACHE_LOG_DIR}/error.log # 기본 설정에 따름
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        <Directory "/home/ubuntu/ezcode-home/dist">
+    Options Indexes FollowSymLinks Includes ExecCGI
+    AllowOverride All
+    Require all granted
+        </Directory>
+</VirtualHost>
+
+주의 : # 주석으로 작성 된 '기본 설정에 따름' 문자열 값이 있을경우 apache2 서비스 재 구동시 에러
+
+* apache2 서비스 재 구동
+ubuntu@instance-20210626-1555:/etc/apache2/sites-available$ sudo systemctl restart apache2
+
+* vue 파일 build
+ubuntu@instance-20210626-1555:/etc/apache2/sites-available$ cd ~/ezcode-home/
+ubuntu@instance-20210626-1555:/ezcode-home/$ sudo yarn build
