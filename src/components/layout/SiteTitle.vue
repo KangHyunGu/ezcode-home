@@ -1,11 +1,9 @@
 <template>
-    <v-btn to='/' text plain class="text-none text-h6 px-0">    
-        {{title}}
-    </v-btn>
+	<v-btn to="/" text plain class="text-none text-h6 px-0">{{title}}</v-btn>
 </template>
 
 <script>
-import {mapState, map} from 'vuex';
+import { mapState } from 'vuex';
 export default {
 	name : "SiteTitle",
 	computed:{
@@ -15,3 +13,7 @@ export default {
 	}
 }
 </script>
+
+<style>
+
+</style>

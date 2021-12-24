@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            cd /home/ubuntu/ezcode-home
+            cd /home/ubuntu/bnb-ezhome
             sudo git pull
             sudo yarn
             pm2 reload all

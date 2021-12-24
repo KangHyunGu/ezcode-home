@@ -5,14 +5,12 @@
       v-model.trim="form.mb_id"
       :rules="rules.id()"
     />
-
     <v-text-field
       label="이메일"
       v-model.trim="form.mb_email"
       :rules="rules.email()"
     />
-
-    <v-btn block color="primary" type="submit" :loading="isLoding">
+    <v-btn block color="primary" type="submit" :loading="isLoading">
       비밀번호 찾기
     </v-btn>
   </v-form>
@@ -21,9 +19,9 @@
 <script>
 import validateRules from "../../../util/validateRules";
 export default {
-  name: "FindIdform",
+  name: "FindPwForm",
   props: {
-    isLoding: {
+    isLoading: {
       type: Boolean,
       default: false,
     },
@@ -32,12 +30,11 @@ export default {
     return {
       valid: true,
       form: {
-        mb_id: "kang2",
-        mb_email: "gusrn45@naver.com",
+        mb_id: "moosin76",
+        mb_email: "moosin76@naver.com",
       },
     };
   },
-
   computed: {
     rules: () => validateRules,
   },

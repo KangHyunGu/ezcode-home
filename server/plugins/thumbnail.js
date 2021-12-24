@@ -1,4 +1,3 @@
-// 섬네일 관련
 const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
@@ -6,45 +5,53 @@ const imageSize = require('image-size');
 
 const thumbnail = function (uploadPath) {
 	return async function (req, res, next) {
+		// console.log('upload path ', _path + req.path);
+		// console.log('--------------');
 		const _path = `${uploadPath}/${req.params._path}`;
+		
 		const srcFile = `${_path}${req.path}`;
-        // console.log('__dirname : ', __dirname, '\n\n');
-        // console.log('uploadPath : ', uploadPath);
-        // console.log('_path : ', _path);
-        // console.log('req.params._path : ', req.params._path)
-        // console.log('req.path : ', req.path)
-        // console.log('srcFile : ', srcFile);
+		const fileInfo = path.parse(req.path);
+
 		if (!fs.existsSync(srcFile)) {
+			// console.log('없음', srcFile);
 			return res.status(400).json({ err: 'file not found' });
 		}
 
-		const fileInfo = path.parse(req.path);
 		const dim = imageSize(srcFile);
-		// console.log(dim);
-
-		if (dim.type != 'jpg' && dim.type != 'png') {
-			return res.end(fs.readFileSync(srcFile));
+		// console.log(dim)
+		// gif 일때
+		if (dim.type != "jpg" && dim.type != "png") {
+			return res.end(fs.readFileSync(srcFile))
 		}
 
+		// 요청 사이즈
 		const w = parseInt(req.query.w) || 0;
 		const h = parseInt(req.query.h) || 0;
-		// console.log("요청", w, h)
+		// console.log('w, h', w, h);
 
+		// 요청 사이즈가 둘다없으면
 		if (w == 0 && h == 0) {
-			return res.end(fs.readFileSync(srcFile));
+			// 원본을 보내준다
+			// console.log("둘다 0이다")
+			return res.end(fs.readFileSync(srcFile))
 		}
 
+		// 캐쉬 폴더 생성,
 		const destPath = _path + '/.cache';
 		fs.mkdirSync(destPath, { recursive: true });
-		// test4.jpg?w=80&h=60
-		// test4_w80_h60.jpg
-		const destFile = `${destPath}/${fileInfo.name}_w${w}_h${h}${fileInfo.ext}`;
 
-		// 캐쉬 파일이 있으면 캐쉬된 파일을 보내주고
-		if(fs.existsSync(destFile)) {
+		// 캐쉬 파일명
+		const destFile = `${destPath}/${fileInfo.name}_w${w}_h${h}${fileInfo.ext}`;
+		// console.log('destFile', destFile);
+
+		// cache 된게 있으면 캐쉬 파일을 보내준다.
+		if (fs.existsSync(destFile)) {
+			// console.log('캐쉬된거 보냄')
 			return res.end(fs.readFileSync(destFile));
 		}
-		// 이미지를 리사이즈해서 캐쉬 파일을 생성
+		// console.log('캐쉬 파일 생성');
+		// console.log('srcFile', srcFile);
+		// console.log('destFile', destFile);
 		await sharp(srcFile).resize(w || null, h || null).toFile(destFile);
 		return res.end(fs.readFileSync(destFile));
 	}

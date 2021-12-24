@@ -1,18 +1,18 @@
-m<template>
+<template>
   <div>
     <h1>토스트 테스트</h1>
     <div>
       <v-btn @click="toastTest1">토스트 Info</v-btn>
-      <v-btn @click="toastTest2">토스트 success</v-btn>
-      <v-btn @click="toastTest3">토스트 error</v-btn>
-      <v-btn @click="toastTest4">토스트 warning</v-btn>
-      <v-btn @click="toastTest5">전역 에러test</v-btn>
+      <v-btn @click="toastTest2">토스트 Success</v-btn>
+      <v-btn @click="toastTest3">토스트 Error</v-btn>
+      <v-btn @click="toastTest4">토스트 Warning</v-btn>
+      <v-btn @click="toastTest5">전역 에러</v-btn>
     </div>
     <h1>프로그레스바 테스트</h1>
     <div>
-      <v-btn @click="progressTest1">START</v-btn>
-      <v-btn @click="progressTest2">FINISH</v-btn>
-      <v-btn @click="progressTest3">FAIL</v-btn>
+      <v-btn @click="progressTest1">Start</v-btn>
+      <v-btn @click="progressTest2">Finish</v-btn>
+      <v-btn @click="progressTest3">Fail</v-btn>
     </div>
     <h1>Notify 테스트</h1>
     <div>
@@ -25,48 +25,55 @@ m<template>
       <v-btn @click="axiosTest1">Test</v-btn>
       <v-btn @click="axiosTest2">Error Test</v-btn>
     </div>
-
     <h1>Socket 테스트</h1>
     <div>
-      <v-btn @click="joinRoom"> 방 입장</v-btn>
-      <v-btn @click="leaveRoom"> 방 퇴장</v-btn>
-      <v-btn @click="SendMsg">메세지 보내기</v-btn>
+      <v-btn @click="joinRoom('testroom')">방 입장</v-btn>
+      <v-btn @click="leaveRoom('testroom')">방 퇴장</v-btn>
+      <v-btn @click="sendMsg(1)">전체</v-btn>
+      <v-btn @click="sendMsg(2)">브로드캐스트</v-btn>
+      <v-btn @click="sendMsg(3)">룸</v-btn>
+      <v-btn @click="sendMsg(4)">룸 브로드캐스트</v-btn>
       <div>{{ $store.state.config.test1 }}</div>
+    </div>
+    <div>
+      <v-text-field v-model="toId" label="회원아이디"></v-text-field>
+      <v-text-field v-model="userMsg" label="메세지"></v-text-field>
+      <v-btn @click="sendUser">사용자에게 메세지 보내기</v-btn>
     </div>
   </div>
 </template>
-
 <script>
+import { mapActions } from "vuex";
 export default {
   name: "Home",
-  data() {
-    return {
-      title: "My App",
-    };
-  },
-
   title() {
     return this.title;
   },
-
-  mounted() {
-    //socketio 이벤트 등록
-    this.$socket.on("room:msg", (data) => {
-      console.log("room:msg", data);
-    });
+  data() {
+    return {
+      title: "My Home",
+      toId: "",
+      userMsg: "",
+    };
   },
-
-  destroyed() {
-    //socketio 이벤트 해제
-    this.$socket.off("room:msg");
+  socket() {
+    return {
+      "room:msg": (data) => {
+        console.log("room:msg", data);
+      },
+			"room:chat" : (data) =>{
+				console.log("room:chat", data);
+				this.toId = data.fromId;
+			}
+    };
   },
-
   methods: {
+    ...mapActions("socket", ["joinRoom", "leaveRoom"]),
     toastTest1() {
       this.$toast.info("안내 입니다.");
     },
     toastTest2() {
-      this.$toast.success("success.");
+      this.$toast.success("success");
     },
     toastTest3() {
       this.$toast.error("error.");
@@ -75,7 +82,7 @@ export default {
       this.$toast.warning("warning.");
     },
     toastTest5() {
-      throw new Error("에러가 발생!");
+      throw new Error("에러가 발생");
     },
     progressTest1() {
       this.$Progress.start();
@@ -88,7 +95,8 @@ export default {
     },
     async notifyTest1() {
       const res = await this.$ezNotify.alert("경고", "안내", {
-        icon: "mdi-alert",
+        icon: "mdi-forum",
+        iconColor: "yellow",
       });
       console.log(res);
     },
@@ -109,23 +117,22 @@ export default {
       console.log(result);
     },
     async axiosTest2() {
-      const result = await this.$axios.get("/api/err/test");
+      const result = await this.$axios.get("/api/errrrr/test");
       console.log(result);
     },
-
-    // 방 입장
-    joinRoom() {
-      this.$socket.emit("room:join", "roomtest");
-      console.log("joinRoom");
+    sendMsg(target) {
+      this.$socket.emit("room:send", { msg: target + " 센드 메세지", target });
     },
-    // 방 퇴장
-    leaveRoom() {
-      this.$socket.emit("room:leave", "roomtest");
-      console.log("leaveRoom");
-    },
-    // 메세지 전송
-    SendMsg() {
-      this.$socket.emit("room:send", { msg: "센드 메세지" });
+    sendUser() {
+      const { toId, userMsg } = this;
+      const { member } = this.$store.state.user;
+      if (toId && userMsg && member) {
+        this.$socket.emit("room:chat", {
+          toId,
+          userMsg,
+          fromId: member.mb_id,
+        });
+      }
     },
   },
 };

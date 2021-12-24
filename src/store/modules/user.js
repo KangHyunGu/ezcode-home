@@ -1,117 +1,106 @@
 import Vue from "vue";
-import qs from 'qs'
-import {LV} from '../../../util/level' 
+import qs from 'qs';
+import { LV } from '../../../util/level';
 
 export const state = () => ({
-    member : null,
-    token : null
+	member: null,
+	token: null,
 });
 
-
 export const mutations = {
-    SET_MEMBER(state, member){
-        state.member = member;
-    },
-    SET_TOKEN(state, token){
-        state.token = token;
-    }
+	SET_MEMBER(state, member) {
+		state.member = member;
+	},
+	SET_TOKEN(state, token) {
+		state.token = token;
+	}
 };
 
 export const getters = {
-    // 관리자 체크
-    isAdmin(state) {
-        console.log('LV.ADMIN : ' , LV.ADMIN)
-        return state.member && state.member.mb_level >= LV.ADMIN;
-    },
-    // Super User 체크
-    isSuper(state){
-        return state.member && state.member.mb_level >=
-        LV.SUPER;
-    }
+	isAdmin(state) {
+		return state.member && state.member.mb_level >= LV.ADMIN;
+	},
+	isSuper(state) {
+		return state.member && state.member.mb_level >= LV.SUPER;
+	}
 };
 
 export const actions = {
-    async initUser({commit}){
-        const {$axios} = Vue.prototype
-        const data = await $axios.get('/api/member/auth');
-        if(data && data.member && data.token){
-            commit('SET_MEMBER', data.member);
-            commit('SET_TOKEN', data.token);
-        }
-    },
-    //ctx {commit, dispatch}
-    //dispatch actions 끼리 서로 주고 받을때
-    //commit mutations로 상태 변화 할때
-    async duplicateCheck(ctx, {field, value}) {
-        const { $axios } = Vue.prototype;
-        const data = await $axios.get(`/api/member/duplicateCheck/${field}/${value}`)
-        return data;
-    },
-    async createMember(ctx, form) {
-        console.log('======> : ' ,form);
-        const { $axios} = Vue.prototype
-        const data = await $axios.post(`/api/member`, form)
-        return data;
-    },
-    async updateMember({commit}, form){
-        const { $axios} = Vue.prototype
-        commit('SET_MEMBER', null);
-        const data = await $axios.patch(`/api/member`, form)
-        if(data) {
-            commit('SET_MEMBER', data)
-        }
-        return !!data;
-    },
-    async signInLocal({commit}, form){
-        console.log('Login ======> : ' ,form);
-        const { $axios} = Vue.prototype
-        const data = await $axios.post(`/api/member/loginLocal`, form)
-        if(data && data.member) {
-            commit('SET_MEMBER', data.member)
-            //데이터 쿠키 Set
-            //개발자 모드 Application -> Cookies 확인 가능
-            // VueCookies.set('token', data.token)
-            commit('SET_TOKEN', data.token)
-        }
-        return !!data;
-    },
+	async initUser({ commit, dispatch }) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.get('/api/member/auth');
+		if (data && data.member && data.token) {
+			commit('SET_MEMBER', data.member);
+			commit('SET_TOKEN', data.token);
+			dispatch('socket/joinRoom', data.member.mb_id, { root: true });
+		}
+	},
+	async duplicateCheck(ctx, { field, value }) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.get(`/api/member/duplicateCheck/${field}/${value}`);
+		return data;
+	},
+	async createMember(ctx, form) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.post(`/api/member`, form);
+		return data;
+	},
+	async updateMember({ commit }, form) {
+		const { $axios } = Vue.prototype;
+		commit('SET_MEMBER', null);
+		const data = await $axios.patch(`/api/member`, form);
+		if (data) {
+			commit('SET_MEMBER', data);
+		}
+		return !!data;
+	},
+	async signInLocal({ commit, dispatch }, form) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.post(`/api/member/loginLocal`, form);
+		if (data && data.member && data.token) {
+			commit('SET_MEMBER', data.member);
+			commit('SET_TOKEN', data.token);
+			dispatch('socket/joinRoom', data.member.mb_id, { root: true });
+		}
+		return !!data;
+	},
+	async signInSocial({ commit, dispatch }, data) {
+		commit('SET_MEMBER', data.member);
+		commit('SET_TOKEN', data.token);
+		dispatch('socket/joinRoom', data.member.mb_id, { root: true });
+	},
+	async checkPassword({ commit }, form) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.post(`/api/member/checkPassword`, form);
+		return data;
+	},
 
-    async checkPassword({commit}, form){
-        const { $axios} = Vue.prototype
-        const data = await $axios.post(`/api/member/checkPassword`, form)
-        return data;
-    },
-
-    async signOut({commit, state}) {
-        const mb_name = state.member.mb_name
-        const {$axios} = Vue.prototype
-        await $axios.get('/api/member/signOut');
-        commit('SET_MEMBER', null);
-        commit('SET_TOKEN', null);
-        //VueCookies.remove('token');
-        return mb_name;
-    },
-
-    async findIdLocal(ctx, form){
-        const {$axios} = Vue.prototype
-        const query = qs.stringify(form)
-
-        //mb_name=test&mb_email=test%40daum.net
-        //console.log(query);
-        const data = await $axios.get(`/api/member/findId?${query}`);
-        return data
-    },
-
-    async findPwLocal(ctx, form){
-        const {$axios} = Vue.prototype
-        const query = qs.stringify(form)
-        const data = await $axios.get(`/api/member/findPw?${query}`);
-        return data
-    },
-
-    async modifyPassword(ctx, form){
-        const {$axios} = Vue.prototype
-        const data = await $axios.patch('/api/member/modifyPassword', form);
-        return data;
-    }
-};
+	async signOut({ commit, state, dispatch }) {
+		const mb_name = state.member.mb_name;
+		const { $axios } = Vue.prototype;
+		await $axios.get('/api/member/signOut');
+		// console.log('mb_name', mb_name);
+		dispatch('socket/leaveRoom', state.member.mb_id, { root: true });
+		commit('SET_MEMBER', null);
+		commit('SET_TOKEN', null);
+		// VueCookies.remove('token');
+		return mb_name;
+	},
+	async findIdLocal(ctx, form) {
+		const { $axios } = Vue.prototype;
+		const query = qs.stringify(form);
+		const data = await $axios.get(`/api/member/findId?${query}`);
+		return data;
+	},
+	async findPwLocal(ctx, form) {
+		const { $axios } = Vue.prototype;
+		const query = qs.stringify(form);
+		const data = await $axios.get(`/api/member/findPw?${query}`);
+		return data;
+	},
+	async modifyPassword(ctx, form) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.patch(`/api/member/modifyPassword`, form);
+		return data;
+	}
+}

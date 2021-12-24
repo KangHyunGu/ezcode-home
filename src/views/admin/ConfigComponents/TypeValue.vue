@@ -3,8 +3,8 @@
     <v-text-field
       label="Value"
       :value="value"
-      :readonly="readonly"
       @input="onInput"
+      :readonly="readonly"
       :hide-details="readonly"
     />
   </div>
@@ -13,14 +13,25 @@
       label="Value"
       type="number"
       :value="value"
-      :readonly="readonly"
       @input="onInput"
+      :readonly="readonly"
       :hide-details="readonly"
+    />
+  </div>
+  <div v-else-if="fieldType == 'CheckBox'">
+    <v-checkbox
+      label="Check value"
+      :input-value="value"
+      @change="onInput"
+      :readonly="readonly"
+      :hide-details="readonly"
+			true-value="1"
+			false-value="0"
     />
   </div>
   <div v-else-if="fieldType == 'Json'">
     <template v-if="readonly">
-      <v-btn @click="jsonView"> JSON 보기</v-btn>
+      <v-btn @click="jsonView" color="primary">JSON 보기</v-btn>
       <ez-dialog ref="dialog" label="JSON 값 보기" width="600">
         <pre class="mt-4">{{ stringify() }}</pre>
       </ez-dialog>
@@ -30,16 +41,16 @@
       v-else
       label="Value"
       :value="value"
-      :readonly="readonly"
       @input="onInput"
+      :readonly="readonly"
     ></v-textarea>
   </div>
   <div v-else-if="fieldType == 'Secret'">
     <input-password
       label="Secret Value"
       :value="value"
-      :readonly="readonly"
       @input="onInput"
+      :readonly="readonly"
       :hide-details="readonly"
     />
   </div>
@@ -52,6 +63,7 @@
 import InputPassword from "../../../components/InputForms/InputPassword.vue";
 import jsonStringify from "json-stable-stringify";
 import EzDialog from "../../../components/etc/EzDialog.vue";
+
 export default {
   components: { InputPassword, EzDialog },
   name: "TypeValue",
@@ -78,7 +90,9 @@ export default {
     },
     stringify() {
       const obj = JSON.parse(this.value);
-      return jsonStringify(obj, { space: "  " });
+      const str = jsonStringify(obj, { space: "  " });
+      // console.log(str);
+      return str;
     },
     jsonView() {
       this.$refs.dialog.open();
@@ -88,4 +102,4 @@ export default {
 </script>
 
 <style>
-</style> 
+</style>

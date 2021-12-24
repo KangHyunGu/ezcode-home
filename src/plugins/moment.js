@@ -3,4 +3,4 @@ import moment from '../../util/moment';
 
 Vue.prototype.$moment = moment;
 
-export default moment;
+//export default moment;

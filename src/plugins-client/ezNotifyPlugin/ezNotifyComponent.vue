@@ -9,24 +9,24 @@
           <v-icon class="mr-4" large :color="options.iconColor">
             {{ options.icon }}
           </v-icon>
-          <span v-html="content" />
+          <span v-html="content"></span>
         </div>
         <v-form
           v-if="options.type === 'prompt'"
           ref="form"
-          @submit.stop="ok"
+					@submit.stop="ok"
           v-model="valid"
           lazy-validation
         >
           <v-text-field
-          :type="options.formType"
+						:type="options.formType"
             v-model.trim="text"
             :rules="[(v) => !!v || '필수 입력입니다.']"
           ></v-text-field>
         </v-form>
       </v-card-text>
       <v-card-actions class="justify-end">
-        <v-btn v-if="options.type !== 'alert'" @click="cancel">취소</v-btn>
+        <v-btn v-if="options.type !== 'alert'" @click="cancle">취소</v-btn>
         <v-btn color="primary" @click="ok">확인</v-btn>
       </v-card-actions>
     </v-card>
@@ -56,20 +56,20 @@ export default {
           this.promise = { resolve, reject };
           this.content = content;
           this.title = title;
-          (this.options = option),
-            (this.text = option.text),
-            (this.dialog = true);
+          this.options = option;
+					this.text = option.text,
+          this.dialog = true;
         });
       });
     },
     close(result) {
-      this.promise.resolve(result);
+			this.promise.resolve(result);
       this.dialog = false;
       this.promise = null;
       this.content = "";
       this.title = "";
-      this.text = "";
-      this.valid = true;
+			this.text = "";
+			this.valid = true;
       this.options = this.opt;
     },
     ok() {
@@ -83,7 +83,7 @@ export default {
         this.close(true);
       }
     },
-    cancel() {
+    cancle() {
       this.close(false);
     },
   },

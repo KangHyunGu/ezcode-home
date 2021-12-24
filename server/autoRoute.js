@@ -17,4 +17,4 @@ module.exports = function (root, app) {
 			app.use(`${root}${moduleName}`, require(`.${root}/${p.name}`));
 		}
 	})
-} 
+}

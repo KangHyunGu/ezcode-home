@@ -6,8 +6,7 @@
         <div>
           <b>{{ item.cf_name }}</b>
         </div>
-        <div><pre class="comment" v-html="item.cf_comment" /></div>
-
+        <div><pre class="comment" v-html="item.cf_comment"></pre></div>
         <div>
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
@@ -15,27 +14,20 @@
                 <span class="white--text">{{ item.cf_level }}</span>
               </v-avatar>
             </template>
-            <span> 접근 레벨 </span>
+            <span>접근 레벨</span>
           </v-tooltip>
         </div>
         <div>
-          <v-btn icon @click="$emit('update', item)"
-            ><v-icon>mdi-pencil</v-icon></v-btn
-          >
+          <v-btn icon @click="$emit('update', item)"><v-icon>mdi-pencil</v-icon></v-btn>
         </div>
       </div>
-
       <div>
         <div>
           <b>{{ item.cf_key }}</b>
         </div>
         <div>
-          <type-value
-            :fieldType="item.cf_type"
-            :value="item.cf_val"
-            :readonly="true"
-          />
-        </div>
+					<type-value :fieldType="item.cf_type" :value="item.cf_val" :readonly="true"/>
+				</div>
         <div>
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
@@ -52,20 +44,15 @@
           </v-tooltip>
         </div>
         <div>
-          <v-btn icon @click="$emit('remove', item)"
-            ><v-icon>mdi-delete</v-icon></v-btn
-          >
+          <v-btn icon @click="$emit('remove',item)"><v-icon>mdi-delete</v-icon></v-btn>
         </div>
       </div>
     </div>
-
-    <!-- {{ item.cf_key }} - {{ item.cf_name }}
-    <v-btn @click="$emit('update', item)">수정</v-btn> -->
   </li>
 </template>
 
 <script>
-import TypeValue from "./TypeValue.vue";
+import TypeValue from './TypeValue.vue';
 export default {
   components: { TypeValue },
   name: "ConfigItem",
@@ -79,4 +66,4 @@ export default {
 </script>
 
 <style>
-</style> 
+</style>

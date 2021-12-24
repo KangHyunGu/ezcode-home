@@ -1,11 +1,27 @@
-
 <template>
   <v-container fluid>
     <v-toolbar>
       <v-toolbar-title>설정관리</v-toolbar-title>
       <v-spacer></v-spacer>
-      <tooltip-btn fab small label="설정 추가" @click="addConfig">
+      <tooltip-btn
+        fab
+        small
+        label="설정 추가"
+        color="primary"
+        @click="addConfig"
+      >
         <v-icon>mdi-plus</v-icon>
+      </tooltip-btn>
+      <tooltip-btn
+        fab
+        small
+        label="서버 재시작"
+        color="error"
+        @click="restartServer"
+        childClass="ml-2"
+        :loading="restart"
+      >
+        <v-icon>mdi-power</v-icon>
       </tooltip-btn>
     </v-toolbar>
 
@@ -38,7 +54,14 @@
     </draggable>
 
     <!-- 설정 다이얼로그 -->
-    <ez-dialog label="설정 추가" ref="dialog" max-width="500" color="primary">
+    <ez-dialog
+      label="설정 추가"
+      ref="dialog"
+      max-width="500"
+      dark
+      color="primary"
+      persistent
+    >
       <config-form
         ref="configForm"
         @save="save"
@@ -52,12 +75,13 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import EzDialog from "../../components/etc/EzDialog.vue";
 import TooltipBtn from "../../components/etc/TooltipBtn.vue";
 import ConfigForm from "./ConfigComponents/ConfigForm.vue";
 import ConfigItem from "./ConfigComponents/ConfigItem.vue";
 import draggable from "vuedraggable";
+
 export default {
   components: { TooltipBtn, EzDialog, ConfigForm, ConfigItem, draggable },
   name: "admConfig",
@@ -67,9 +91,13 @@ export default {
       group: -1,
       curItems: [],
       item: null,
+      restart: false,
     };
   },
   computed: {
+    ...mapState({
+      online: (state) => state.socket.online,
+    }),
     groupItems() {
       const sets = new Set();
       this.items.forEach((item) => {
@@ -82,8 +110,14 @@ export default {
     },
   },
   watch: {
+    online() {
+      if (this.online) {
+        this.$toast.info("서버가 재시작 되었습니다.");
+        this.restart = false;
+      }
+    },
     group() {
-      this.setCuritems();
+      this.setCurItems();
     },
   },
   mounted() {
@@ -106,27 +140,24 @@ export default {
       this.$refs.dialog.open();
     },
     async removeConfig(item) {
-      // 삭제 여부 확인
+      // 진짜 지울꺼야?
       const result = await this.$ezNotify.confirm(
-        `<b>[${item.cf_name}]</b>을 삭제 하시겠습니까?`,
+        `<b>[${item.cf_name}]</b> 삭제 하시겠습니까?`,
         "설정항목 삭제",
         { icon: "mdi-delete", iconColor: "red" }
       );
       if (!result) return;
-
-      // DB 삭제 처리
+      // DB 지우고
       const data = await this.$axios.delete(`/api/config/${item.cf_key}`);
       // 목록 업데이트
       if (data) {
-        // socket로 real time 활용
         if (item.cf_client) {
           this.$socket.emit("config:remove", item.cf_key);
         }
-
-        this.$toast.info(`${item.cf_name}을 삭제 하였습니다.`);
+        this.$toast.info(`[${item.cf_name}] 삭제 하였습니다.`);
         const idx = this.items.indexOf(item);
         this.items.splice(idx, 1);
-        this.setCuritems();
+        this.setCurItems();
       }
     },
     async save(form) {
@@ -139,18 +170,17 @@ export default {
       } else if (this.item && this.item.cf_client) {
         this.$socket.emit("config:remove", data.cf_key);
       }
+
       if (this.item) {
-        // 수정
-        this.$toast.info(`${form.cf_name} 수정 하였습니다.`);
+        this.$toast.info(`[${form.cf_name}] 수정 하였습니다.`);
         const idx = this.items.indexOf(this.item);
         this.items.splice(idx, 1, data);
       } else {
-        // 신규
-        this.$toast.info(`${form.cf_name} 추가 하였습니다.`);
+        this.$toast.info(`[${form.cf_name}] 추가 하였습니다.`);
         this.items.push(data);
       }
 
-      this.setCuritems();
+      this.setCurItems();
       this.$refs.dialog.close();
     },
     async keyCheck(value) {
@@ -166,14 +196,40 @@ export default {
       const payload = [];
       this.curItems.forEach((item) => {
         item.cf_sort = i++;
-        payload.push({ cf_key: item.cf_key, cf_sort: item.cf_sort });
+        payload.push({
+          cf_key: item.cf_key,
+          cf_sort: item.cf_sort,
+        });
       });
-      this.$axios.put("/api/config", this.curItems);
+      this.$axios.put("/api/config", payload);
     },
-    setCuritems() {
-      this.curItems = this.items.filter((item) => {
-        return item.cf_group == this.groupName;
-      });
+    setCurItems() {
+      this.curItems = this.items
+        .filter((item) => item.cf_group == this.groupName)
+        .sort((a, b) => a.cf_sort - b.cf_sort);
+    },
+    async restartServer() {
+      const result = await this.$ezNotify.confirm(
+        "서버 재시작 요청을 하시겠습니까?",
+        "서버 재시작",
+        { icon: "mdi-power", iconColor: "red" }
+      );
+
+      if (!result) return;
+      this.restart = true;
+      const data = await this.$axios.get("/api/config/restart");
+      if (data) {
+        setTimeout(() => {
+          if (this.restart) {
+            this.$toast.error(
+              "서버 재시작이 실패했습니다.\n잠시 후 다시 시도 하세요."
+            );
+            this.restart = false;
+          }
+        }, 20000);
+      } else {
+        this.restart = false;
+      }
     },
   },
 };

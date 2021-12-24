@@ -1,13 +1,11 @@
-import { createApp } from './main';
+import { createApp } from "./main";
 // import "./plugins-client/vue-toast";
-// import "./plugins-client/vue-progressbar"
-// import "./plugins-client/ezNotify"
-import './plugins-client';
-
+// import "./plugins-client/vue-progressbar";
+// import "./plugins-client/ezNotify";
+import plugins from './plugins-client';
 const { app, router, store } = createApp();
 
-
-// if (window.__INITIAL_STATE__) {
+// if(window.__INITIAL_STATE__) {
 // 	store.replaceState(window.__INITIAL_STATE__);
 // }
 function addStyle(href) {
@@ -20,6 +18,6 @@ function addStyle(href) {
 
 addStyle('/css/style.css');
 
-router.onReady(() => {
+router.onReady(()=>{
 	app.$mount('#app');
 });

@@ -5,10 +5,8 @@
 </template>
 
 <script>
-
-export default ({
-  name : "About",
-  title : 'About Page'
-})
+export default {
+	name : "About",
+	title : "My About",
+}
 </script>
-

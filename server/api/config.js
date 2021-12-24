@@ -12,6 +12,11 @@ router.get('/', async(req, res)=> {
 	res.json(result);
 });
 
+router.get('/restart', async(req, res)=>{
+	const result = await modelCall(configModel.restart, req);
+	res.json(result);
+})
+
 // 단일
 router.post('/', async(req, res)=>{
 	const result = await modelCall(configModel.post, req.body);
@@ -22,10 +27,9 @@ router.post('/', async(req, res)=>{
 router.put('/', async(req, res)=>{
 	const result = await modelCall(configModel.put, req);
 	res.json(result);
-})
+});
 
-// 삭제
-router.delete('/:cf_key', async(req, res)=>{
+router.delete('/:cf_key', async(req,res)=>{
 	const result = await modelCall(configModel.remove, req);
 	res.json(result);
 })

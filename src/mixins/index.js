@@ -4,7 +4,7 @@ const requireModule = require.context('.', false, /\.js$/);
 const modules = {};
 
 requireModule.keys().forEach(filename => {
-	if (filename != './index.js') {
+	if(filename != './index.js') {
 		const moduleName = camelCase(filename.replace(/(\.\/|\.js)/g, ''));
 		modules[moduleName] = requireModule(filename).default;
 	}

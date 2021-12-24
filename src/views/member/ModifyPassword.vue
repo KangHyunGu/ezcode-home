@@ -1,9 +1,6 @@
 <template>
   <div class="d-flex justify-center align-center" style="height: 100%">
-    <v-card max-width="400" width="100%">
-      <!-- <v-card-title>
-        <site-title />
-      </v-card-title> -->
+    <v-card max-width="400" width="100%" elevation="10">
       <v-card-subtitle class="text-center">
         변경하실 비밀번호를 입력하세요.
       </v-card-subtitle>
@@ -16,15 +13,15 @@
             :rules="rules.password()"
           />
           <input-password
-            v-model="comfirmPw"
+            v-model="confirmPw"
             label="비밀번호 확인"
             prepend-icon="mdi-lock-check"
             :rules="[rules.matchValue(form.password)]"
           />
         </v-card-text>
         <v-card-actions>
-          <v-btn type="submit" block color="primary" :loading="loading"
-            >비밀번호 변경
+          <v-btn type="submit" block color="primary" :loading="loading">
+            비밀번호 변경
           </v-btn>
         </v-card-actions>
       </v-form>
@@ -50,7 +47,7 @@ export default {
         password: "",
         hash: this.$route.params.hash,
       },
-      comfirmPw: "",
+      confirmPw: "",
       loading: false,
     };
   },
@@ -60,10 +57,13 @@ export default {
   methods: {
     ...mapActions("user", ["modifyPassword"]),
     async save() {
+      console.log(this.form);
       this.$refs.form.validate();
       await this.$nextTick();
       if (!this.valid) return;
+			this.loading = true;
       const data = await this.modifyPassword(this.form);
+			this.loading = false;
       if (data) {
         this.$toast.info("비밀번호가 변경되었습니다.");
         this.$router.push("/login");
