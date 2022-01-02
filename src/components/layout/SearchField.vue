@@ -4,7 +4,7 @@
       <v-icon>mdi-magnify</v-icon>
     </tooltip-btn>
     <tooltip-btn
-			v-if="!!options.stf[0]"
+      v-if="!!options.stf[0]"
       type="button"
       label="검색 초기화"
       icon
@@ -86,12 +86,12 @@ export default {
       },
       compItems: [
         { text: "포함", value: "like" },
-        { text: "작은", value: "<" },
-        { text: "작거나 같은", value: "<=" },
-        { text: "같은", value: "=" },
-        { text: "크거나 같은", value: ">=" },
-        { text: "큰", value: ">" },
-        { text: "같지 않은", value: "!=" },
+        { text: "작은", value: "lt" },
+        { text: "작거나 같은", value: "lte" },
+        { text: "같은", value: "eq" },
+        { text: "크거나 같은", value: "gte" },
+        { text: "큰", value: "gt" },
+        { text: "같지 않은", value: "ne" },
         { text: "NULL", value: "null" },
         { text: "NOT NULL", value: "not" },
       ],
@@ -129,9 +129,9 @@ export default {
       this.form.stf = this.options.stf[0] || this.items[0].value;
       this.form.stc = this.options.stc[0] || "like";
       this.form.stx = this.options.stx[0];
-			if(this.$refs.form) {
-				this.$refs.form.resetValidation();
-			}
+      if (this.$refs.form) {
+        this.$refs.form.resetValidation();
+      }
       this.$refs.dialog.open();
     },
     async searchGo() {
