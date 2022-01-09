@@ -1,6 +1,15 @@
 <template>
   <v-form @submit.prevent="save" ref="form" v-model="valid" lazy-validation>
+    <v-text-field
+      v-if="!!form.mb_provider"
+      v-model="form.mb_provider"
+      label="소셜네트워크 제공자"
+      prepend-icon="mdi-account-network"
+      readonly
+    >
+    </v-text-field>
     <input-duplicate-check
+      v-else
       ref="id"
       label="아이디"
       prepend-icon="mdi-account"
@@ -41,6 +50,19 @@
       :readonly="!admMode"
       :origin="member.mb_email"
     />
+
+    <div v-if="admMode">
+      <div>레벨 {{ form.mb_level }} : {{ lvLabel }}</div>
+      <v-slider
+        v-model="form.mb_level"
+        :min="LV.BLOCK"
+        :max="LV.SUPER"
+        ticks="always"
+        thumb-label
+        prepend-icon="mdi-chevron-triple-up"
+        hide-details
+      ></v-slider>
+    </div>
 
     <input-date
       v-model="form.mb_birth"
@@ -88,6 +110,7 @@
     </v-btn>
 
     <v-btn
+      v-if="isType == 'member'"
       block
       class="mt-4"
       color="error"
@@ -95,6 +118,17 @@
       @click="$emit('onLeave')"
     >
       회원탈퇴
+    </v-btn>
+
+    <v-btn
+      v-else
+      block
+      class="mt-4"
+      color="error"
+      :loading="isLoading"
+      @click="$emit('onRestore')"
+    >
+      회원 탈퇴 취소
     </v-btn>
   </v-form>
 </template>
@@ -109,6 +143,7 @@ import InputPhone from "../InputForms/InputPhone.vue";
 import InputPost from "../InputForms/InputPost.vue";
 import { deepCopy } from "../../../util/lib";
 import DisplayAvatar from "../layout/DisplayAvatar.vue";
+import { LV, LV_LABEL } from "../../../util/level";
 
 export default {
   components: {
@@ -138,6 +173,10 @@ export default {
       type: Function,
       default: null,
     },
+    isType: {
+      type: String,
+      default: "member",
+    },
   },
   data() {
     return {
@@ -152,6 +191,11 @@ export default {
   },
   computed: {
     rules: () => validateRules,
+    LV: () => LV,
+    lvLabel() {
+      //function(), () => 는 문맥이 다르다.
+      return LV_LABEL(this.form.mb_level);
+    },
   },
   created() {
     this.form = deepCopy(this.member);
