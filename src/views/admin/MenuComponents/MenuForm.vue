@@ -36,6 +36,7 @@
 <script>
 import InputLevel from "../../../components/InputForms/InputLevel.vue";
 import validateRules from "../../../../util/validateRules";
+import { deepCopy } from "../../../../util/lib";
 export default {
   components: { InputLevel },
   name: "MenuForm",
@@ -69,6 +70,7 @@ export default {
   methods: {
     init() {
       if (this.item) {
+        this.form = deepCopy(this.item);
       } else {
         // 기본 값 삽입
         this.form = {
@@ -90,6 +92,8 @@ export default {
       // 프레임에서 값을 가져온다.(this.valid)
       await this.$nextTick();
       if (!this.valid) return;
+      this.$emit("save", this.form);
+      this.init();
     },
   },
 };

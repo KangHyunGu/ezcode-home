@@ -9,7 +9,7 @@ const configModel = {
 		const [rows] = await db.execute(sql.query);
 		global.siteConfig = {};
 		global.clientConfig = {};
-		for(const row of rows) {
+		for (const row of rows) {
 			configModel.setConfigItem(row, true);
 		}
 		console.log('설정 로드')
@@ -21,23 +21,23 @@ const configModel = {
 		configModel.clearConfigItem(item.cf_key, isLoad);
 
 		let val;
-		if(item.cf_type == "Json") {
+		if (item.cf_type == "Json") {
 			val = JSON.parse(item.cf_val);
 		} else {
 			val = item.cf_val;
 		}
-		
-		if(item.cf_client == 1) {
+
+		if (item.cf_client == 1) {
 			clientConfig[item.cf_key] = val;
 		} else {
 			siteConfig[item.cf_key] = val;
 		}
 
 		// 초기로드가 아니면 메세지 보낸다
-		if(!isLoad) {
+		if (!isLoad) {
 			process.send({
-				type : 'config:update',
-				data : item,
+				type: 'config:update',
+				data: item,
 			});
 		}
 		// console.log(item.cf_key, val);
@@ -50,10 +50,10 @@ const configModel = {
 		// console.log('delete', cf_key);
 		delete clientConfig[cf_key];
 		delete siteConfig[cf_key];
-		if(!isLoad) {
+		if (!isLoad) {
 			process.send({
-				type : 'config:remove',
-				data : cf_key,
+				type: 'config:remove',
+				data: cf_key,
 			});
 		}
 		// console.log('설정 로드')
@@ -73,13 +73,13 @@ const configModel = {
 	async get(req) {
 		const { all } = req.query;
 		let where = {};
-		if(all == 'true') {
-			if(!isGrant(req, LV.ADMIN)) {
+		if (all == 'true') {
+			if (!isGrant(req, LV.ADMIN)) {
 				throw new Error('관리자 설정 목록 권한이 없습니다.')
 			}
 			const sort = {
-				cf_group : true,
-				cf_sort : true,
+				cf_group: true,
+				cf_sort: true,
 			}
 			const sql = sqlHelper.SelectSimple(TABLE.CONFIG, where, [], sort);
 			const [rows] = await db.execute(sql.query, sql.values);
@@ -88,8 +88,8 @@ const configModel = {
 			// where.cf_client = 1;
 			return clientConfig;
 		}
-		
-	}, 
+
+	},
 	async post(data) {
 		const sql = sqlHelper.InsertOrUpdate(TABLE.CONFIG, data);
 		const [row] = await db.execute(sql.query, sql.values);
@@ -98,31 +98,31 @@ const configModel = {
 	},
 	async put(req) { // 정렬
 		//{cf_key, cf_sort}
-		req.body.forEach((item)=>{
-			const {cf_key, cf_sort} = item;
-			const sql = sqlHelper.Update(TABLE.CONFIG, {cf_sort}, {cf_key});
+		req.body.forEach((item) => {
+			const { cf_key, cf_sort } = item;
+			const sql = sqlHelper.Update(TABLE.CONFIG, { cf_sort }, { cf_key });
 			db.execute(sql.query, sql.values);
 		})
 		return true;
 	},
 	async remove(req) {
-		if(!isGrant(req, LV.SUPER)) {
+		if (!isGrant(req, LV.SUPER)) {
 			throw new Error('최고관리자만 삭제가 가능합니다.');
 		}
-		const {cf_key} = req.params;
-		const sql = sqlHelper.DeleteSimple(TABLE.CONFIG, {cf_key});
+		const { cf_key } = req.params;
+		const sql = sqlHelper.DeleteSimple(TABLE.CONFIG, { cf_key });
 		const [row] = await db.execute(sql.query, sql.values);
 
 		configModel.clearConfigItem(cf_key);// 설정값 삭제
 		return row.affectedRows == 1;
 	},
 	async restart(req) {
-		if(!isGrant(req, LV.SUPER))	{
+		if (!isGrant(req, LV.SUPER)) {
 			throw new Error('최고관리자만 서버 재시작 요청을 할 수 있습니다.');
 		}
 		process.send({
-			type : "config:restart",
-			data : 'restart'
+			type: "config:restart",
+			data: 'restart'
 		});
 		return true;
 	}

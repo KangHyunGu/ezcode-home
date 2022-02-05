@@ -4,6 +4,15 @@ import modules from "./modules";
 
 Vue.use(Vuex)
 
+function menuAccess(ref, arr) {
+	arr.forEach(el => {
+		ref[el.to] = el.grant;
+		if (el.subItems && el.subItems.length) {
+			menuAccess(ref, el.subItems);
+		}
+	});
+}
+
 const store = new Vuex.Store({
 	state: {
 		appReady: false,
@@ -14,16 +23,34 @@ const store = new Vuex.Store({
 			state.appReady = true;
 		},
 		SET_CONFIG(state, { key, value }) {
-			// console.log(typeof value, key, value);
-			try {
-				value = JSON.parse(value);
-			} catch(e){}
-			
-			if(state.config[key]){
+			console.log(typeof value, key, value);
+
+			if (state.config[key]) {
+				try {
+					value = JSON.parse(value);
+				} catch (e) { }
 				state.config[key] = value;
 			} else {
 				Vue.set(state.config, key, value);
 			}
+			// try {
+			// 	value = JSON.parse(value);
+			// } catch (e) { }
+
+			// if (state.config[key]) {
+			// 	state.config[key] = value;
+			// } else {
+			// 	Vue.set(state.config, key, value);
+			// }
+		}
+	},
+	getters: {
+		access(state) {
+			const obj = {};
+			if (state.config.menu) {
+				menuAccess(obj, state.config.menu)
+			}
+			return obj;
 		}
 	},
 	actions: {
@@ -36,7 +63,7 @@ const store = new Vuex.Store({
 				}
 				commit('user/SET_MEMBER', ctx.member);
 				commit('user/SET_TOKEN', ctx.token);
-				if(ctx.member) {
+				if (ctx.member) {
 					commit('socket/ROOM_JOIN', ctx.member.mb_id);
 				}
 			} else {
@@ -51,6 +78,7 @@ const store = new Vuex.Store({
 			return data;
 		},
 		async configSave(ctx, form) {
+			console.log(form);
 			const { $axios } = Vue.prototype;
 			const data = await $axios.post('/api/config', form);
 			return data;

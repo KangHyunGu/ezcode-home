@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 require('./plugins/pm2Bus');
 
-(async function(){
+(async function () {
 	// 앱 초기화
 	const app = express();
 	const port = process.env.VUE_APP_SERVER_PORT || 3000;
@@ -21,7 +21,7 @@ require('./plugins/pm2Bus');
 	// 설치 정보 // DB정보 가있는가
 
 	// 설정정보 로드
-	const configModel = require('./api/_model/configModel');	
+	const configModel = require('./api/_model/configModel');
 	console.log("설정 로그 전")
 	await configModel.load();
 	console.log("설정 로드 후");
@@ -33,8 +33,8 @@ require('./plugins/pm2Bus');
 
 
 	let isDisableKeepAlive = false;
-	app.use((req, res, next)=>{
-		if(isDisableKeepAlive) {
+	app.use((req, res, next) => {
+		if (isDisableKeepAlive) {
 			console.log('Keep Alive', isDisableKeepAlive);
 			res.set('Connection', 'close');
 		}
@@ -43,8 +43,8 @@ require('./plugins/pm2Bus');
 
 
 	// 파비콘
-	app.use((req, res, next)=>{
-		if(req.path.indexOf('favicon.ico') > -1) {
+	app.use((req, res, next) => {
+		if (req.path.indexOf('favicon.ico') > -1) {
 			const favicon = fs.readFileSync(path.join(__dirname, '../dist/favicon.ico'));
 			res.status(200).end(favicon);
 			return;
@@ -54,7 +54,7 @@ require('./plugins/pm2Bus');
 
 	// 파서
 	app.use(express.json());
-	app.use(express.urlencoded({extended: true}));
+	app.use(express.urlencoded({ extended: true }));
 	const fileUpload = require('express-fileupload');
 	app.use(fileUpload());
 	const cookieParser = require('cookie-parser');
@@ -62,7 +62,7 @@ require('./plugins/pm2Bus');
 
 	// 글로벌 
 	global.MEMBER_PHOTO_PATH = path.join(__dirname, './upload/memberPhoto');
-	fs.mkdirSync(MEMBER_PHOTO_PATH, {recursive: true});
+	fs.mkdirSync(MEMBER_PHOTO_PATH, { recursive: true });
 
 	// Passport
 	const passport = require('./plugins/passport');
@@ -78,8 +78,8 @@ require('./plugins/pm2Bus');
 	// API 라우터
 	const autoRoute = require('./autoRoute');
 	autoRoute('/api', app);
-	app.use('/api/*', (req, res)=> {
-		res.json({err : '요청하신 API가 없습니다.'});
+	app.use('/api/*', (req, res) => {
+		res.json({ err: '요청하신 API가 없습니다.' });
 	})
 
 
@@ -91,29 +91,29 @@ require('./plugins/pm2Bus');
 
 	app.get('*', (req, res) => {
 		const renderer = createBundleRenderer(serverBundle, {
-			runInNewContext : false,
+			runInNewContext: false,
 			template,
 			clientManifest
 		});
 		// console.log(process.memoryUsage());
 		// console.log("user", req.user);
 		const ctx = {
-			url : req.url,
-			title : "Vue SSR App",
-			metas : `<!-- inject more metas -->`,
-			member : req.user || null,
-			token : req.cookies.token || null,
-			config : clientConfig,
+			url: req.url,
+			title: "Vue SSR App",
+			metas: `<!-- inject more metas -->`,
+			member: req.user || null,
+			token: req.cookies.token || null,
+			config: $config.client,
 		};
 		const stream = renderer.renderToStream(ctx);
-		stream.on('end', ()=>{
+		stream.on('end', () => {
 			const memSize = Object.entries(process.memoryUsage())[0][1];
-			console.log("스트림 렌더 종료", (memSize/ 1024 / 1024).toFixed(4));
-			if(process.platform == 'linux') {
-				if(memSize > 150000000) {
+			console.log("스트림 렌더 종료", (memSize / 1024 / 1024).toFixed(4));
+			if (process.platform == 'linux') {
+				if (memSize > 150000000) {
 					process.emit('SIGINT');
 				}
-			} 
+			}
 		}).pipe(res);
 	});
 
@@ -123,12 +123,12 @@ require('./plugins/pm2Bus');
 		console.log(`http://localhost:${port}`);
 	});
 
-	process.on('SIGINT', function() {
+	process.on('SIGINT', function () {
 		isDisableKeepAlive = true;
-		webServer.close(function(){
+		webServer.close(function () {
 			console.log('server Closed');
 			process.exit(0);
 		})
 	})
-	
+
 })();
