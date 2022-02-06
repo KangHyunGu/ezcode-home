@@ -28,7 +28,8 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
+import { LV, LV_LABEL } from "../../../util/level";
 
 export default {
   name: "MemberMenu",
@@ -41,6 +42,40 @@ export default {
       ],
     };
   },
+  socket() {
+    return {
+      "member:admUpdate": async (newMember) => {
+        let msg = "";
+        console.log(newMember.mb_level);
+        if (this.member.mb_level != newMember.mb_level) {
+          if (newMember.mb_level < LV.MEMBER) {
+            // 로그아웃
+            const mb_name = await this.signOut();
+            // 메세지를 전송
+            this.$toast.error(
+              `${mb_name}님 관리자에 의해 서비스 중지 되었습니다.`
+            );
+            // 라우터 기본으로 돌림
+            if (this.$route.name != "Home") {
+              this.$router.push("/");
+            }
+
+            return;
+          } else {
+            // 권한이 변경 메세지 전송
+            msg = `\n등급 ${LV_LABEL(this.member.mb_level)}(${
+              this.member.mb_level
+            }) -> ${LV_LABEL(newMember.mb_level)}(${newMember.mb_level})`;
+          }
+        }
+        msg =
+          `${newMember.mb_name}님 관리자에 의해 회원 정보가 수정되었습니다.` +
+          msg;
+        this.$toast.info(msg);
+        this.SET_MEMBER(newMember);
+      },
+    };
+  },
   computed: {
     ...mapState({
       member: (state) => state.user.member,
@@ -48,6 +83,7 @@ export default {
     ...mapGetters("user", ["isAdmin", "isSuper"]),
   },
   methods: {
+    ...mapMutations("user", ["SET_MEMBER"]),
     ...mapActions("user", ["signOut"]),
     async logout() {
       const mb_name = await this.signOut();
