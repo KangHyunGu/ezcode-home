@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="py-4 px-2">
     <v-card-actions>
       <v-btn to="/login" color="primary" block>로그인</v-btn>
     </v-card-actions>
