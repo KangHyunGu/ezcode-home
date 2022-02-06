@@ -1,5 +1,11 @@
 <template>
-  <v-form @submit.prevent="save" ref="form" v-model="valid" lazy-validation>
+  <v-form
+    v-if="member"
+    @submit.prevent="save"
+    ref="form"
+    v-model="valid"
+    lazy-validation
+  >
     <v-combobox
       v-model="form.cf_group"
       :items="groupItems"
@@ -46,7 +52,7 @@
       :label="`접근레벨 (${form.cf_level})`"
       v-model="form.cf_level"
       :min="LV.ADMIN"
-      :max="LV.SUPER"
+      :max="member.mb_level"
       thumb-color="primary"
       thumb-label
     />
@@ -63,6 +69,7 @@ import { LV } from "../../../../util/level";
 import validateRules from "../../../../util/validateRules";
 import { deepCopy, findParentVm } from "../../../../util/lib";
 import jsonStringify from "json-stable-stringify";
+import { mapState } from "vuex";
 
 export default {
   components: { InputDuplicateCheck, TypeValue },
@@ -86,12 +93,15 @@ export default {
       valid: true,
       form: null,
       typeItems: ["String", "Number", "CheckBox", "Json", "Secret"],
-			originKey: null,
+      originKey: null,
     };
   },
   computed: {
     LV: () => LV,
     rules: () => validateRules,
+    ...mapState({
+      member: (state) => state.user.member,
+    }),
   },
   created() {
     this.init();
@@ -105,11 +115,11 @@ export default {
     init() {
       if (this.item) {
         this.form = deepCopy(this.item);
-				if(this.form.cf_type == 'Json') {
-					const obj = JSON.parse(this.form.cf_val);
-					this.form.cf_val = jsonStringify(obj, {space : '  '});
-				}
-				this.originKey = this.item.cf_key;
+        if (this.form.cf_type == "Json") {
+          const obj = JSON.parse(this.form.cf_val);
+          this.form.cf_val = jsonStringify(obj, { space: "  " });
+        }
+        this.originKey = this.item.cf_key;
       } else {
         this.form = {
           cf_key: "", // 중복
@@ -121,11 +131,11 @@ export default {
           cf_comment: "", // 설명
           cf_client: 0,
         };
-				this.originKey = '';
+        this.originKey = "";
       }
-			if(this.$refs.form) {
-				this.$refs.form.resetValidation();
-			}
+      if (this.$refs.form) {
+        this.$refs.form.resetValidation();
+      }
     },
     async save() {
       this.$refs.form.validate();
@@ -142,17 +152,16 @@ export default {
         });
         this.form.cf_sort = i;
       }
-			// JSON 처리
-			try {
-				if(this.form.cf_type == 'Json') {
-					const obj = JSON.parse(this.form.cf_val);
-					this.form.cf_val = JSON.stringify(obj);
-				}
-				this.$emit("save", this.form);
-			} catch(e) {
-				this.$toast.error('JSON 형식이 올바르지 않습니다.');
-			}
-      
+      // JSON 처리
+      try {
+        if (this.form.cf_type == "Json") {
+          const obj = JSON.parse(this.form.cf_val);
+          this.form.cf_val = JSON.stringify(obj);
+        }
+        this.$emit("save", this.form);
+      } catch (e) {
+        this.$toast.error("JSON 형식이 올바르지 않습니다.");
+      }
     },
   },
 };
