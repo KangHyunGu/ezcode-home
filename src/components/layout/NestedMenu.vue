@@ -2,7 +2,7 @@
   <div :style="{ 'padding-left': depth * 2 + 'px' }">
     <div v-for="(item, i) in items" :key="`${i}${item.title}`">
       <v-list-group
-        v-if="item.subItems && item.subItems.length > 0"
+        v-if="item.subItems && item.subItems.length > 0 && isShow(item)"
         :prepend-icon="depth == 0 ? item.icon : ''"
         append-icon=""
         no-action
@@ -79,8 +79,12 @@ export default {
     isShow(item) {
       const { disabled } = this.isDisabled(item);
       console.log(item.title, disabled, this.menuHide);
+      if (item.isHide) {
+        // 아이템 개별 숨김이 true
+        return false;
+      }
       if (disabled) {
-        return !this.menuHide;
+        return !this.menuHide; // 전체 설정이 true
       } else {
         return true;
       }

@@ -44,10 +44,16 @@ const routes = [
     component: () => import(/* webpackChunkName: "admMenu" */ '../views/admin/Menu.vue')
   },
   {
+    path: '/adm/board/*',
+    name: 'AdmBoard',
+    component: () => import(/* webpackChunkName: "admBoard" */ '../views/admin/BoardRenderer.vue')
+  },
+  {
     path: '*',
     name: 'Error',
     component: () => import(/* webpackChunkName: "error" */ '../views/Error.vue')
   },
+
 ]
 
 export default routes;
