@@ -1,0 +1,51 @@
+Axios 설치
+    vue add axios
+
+interceptors 요청 및 응답 시 가로 챔 (request, response)
+
+
+
+
+----------------------------
+1.
+const Plugin = {};
+
+Plugin.install = function(Vue, options) {
+  Vue.axios = _axios;
+  
+  Object.defineProperties(Vue.prototype, {
+    axios: {
+      get() {
+        return _axios;
+      }
+    },
+    $axios: {
+      get() {
+        return _axios;
+      }
+    },
+  });
+};
+
+Vue.use(Plugin)
+
+===
+2.
+Vue.prototype.$axios = _axios
+
+1번 방식과 2번방식으로 사용시 같은 기능
+
+CORS : 서버 다른 경우 호환성 error가 있어 CORS 설정이 필요
+
+
+
+- axios proxy config 설정 필요
+
+
+--- .env
+SERVER_PORT => VUE_APP_SERVER_PORT 변경
+
+--- server 하위에 api 디렉토리 생성
+--- api 폴더 내 member.js 생성
+--- vue.config devServer에 proxy 설정
+
