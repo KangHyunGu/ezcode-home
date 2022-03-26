@@ -78,6 +78,7 @@
 import draggable from "vuedraggable";
 import TooltipBtn from "../../../../components/etc/TooltipBtn.vue";
 import validateRules from "../../../../../util/validateRules";
+
 export default {
   components: { draggable, TooltipBtn },
   name: "BoardSort",
@@ -170,4 +171,4 @@ export default {
 </script>
 
 <style>
-</style> 
+</style>

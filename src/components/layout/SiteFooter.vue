@@ -1,7 +1,7 @@
 <template>
-  <v-footer app dark class="justify-center" absolute>
-    &copy; {{ new Date().getFullYear() }} {{ footer }}
-  </v-footer>
+  <v-footer app dark class="justify-center" absolute> 
+		&copy; {{new Date().getFullYear()}} {{footer}}
+	</v-footer>
 </template>
 
 <script>

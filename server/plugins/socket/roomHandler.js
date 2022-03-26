@@ -4,8 +4,7 @@ module.exports = (io, socket) => {
 		socket.join(roomName);
 	});
 
-	//룸 이름의 배열로 join했을때
-	socket.on('rooms:join', (arr) => {
+	socket.on('rooms:join', (arr)=>{
 		arr.forEach(room => {
 			console.log("rooms:join", room);
 			socket.join(room);
@@ -17,7 +16,7 @@ module.exports = (io, socket) => {
 		socket.leave(roomName);
 	});
 
-	socket.on('rooms:leave', (arr) => {
+	socket.on('rooms:leave', (arr)=>{
 		arr.forEach(room => {
 			console.log("rooms:leave", room);
 			socket.leave(room);

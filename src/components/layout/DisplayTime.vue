@@ -5,7 +5,7 @@
         {{ display }}
       </span>
     </template>
-    <span> {{ formatTime }} </span>
+    {{ formatTime }}
   </v-tooltip>
 </template>
 

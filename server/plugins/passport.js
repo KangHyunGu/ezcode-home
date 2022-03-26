@@ -17,7 +17,7 @@ const {
 	NAVER_CLIENT_SECRET,
 } = siteConfig;
 
-const { CALLBACK_URL } = process.env;
+const {CALLBACK_URL} = process.env;
 
 function loginRules(member) {
 	// console.log('loginRules', member);
@@ -25,7 +25,7 @@ function loginRules(member) {
 		return '탈퇴 회원입니다.';
 	}
 	switch (member.mb_level) {
-		case LV.AWAIT:
+		case LV.AWAIT :
 			return '대기 회원입니다.';
 		case LV.BLOCK:
 			return '차단 회원입니다.';

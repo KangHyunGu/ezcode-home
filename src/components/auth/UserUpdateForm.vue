@@ -6,8 +6,7 @@
       label="소셜네트워크 제공자"
       prepend-icon="mdi-account-network"
       readonly
-    >
-    </v-text-field>
+    ></v-text-field>
     <input-duplicate-check
       v-else
       ref="id"
@@ -50,9 +49,10 @@
       :readonly="!admMode"
       :origin="member.mb_email"
     />
-
-    <div v-if="admMode">
-      <div>레벨 {{ form.mb_level }} : {{ lvLabel }}</div>
+    <div v-if="admMode" class="mb-4">
+      <div class="pl-10 text-caption">
+        레벨 {{ form.mb_level }} : {{ lvLabel }}
+      </div>
       <v-slider
         v-model="form.mb_level"
         :min="LV.BLOCK"
@@ -121,8 +121,8 @@
       class="mt-4"
       color="error"
       :loading="isLoading"
-      :disabled="isGrant"
       @click="$emit('onLeave')"
+      :disabled="isGrant"
     >
       회원탈퇴
     </v-btn>
@@ -134,8 +134,9 @@
       color="error"
       :loading="isLoading"
       @click="$emit('onRestore')"
+      :disabled="isGrant"
     >
-      회원 탈퇴 취소
+      회원 탈퇴 복원
     </v-btn>
   </v-form>
 </template>
@@ -150,7 +151,7 @@ import InputPhone from "../InputForms/InputPhone.vue";
 import InputPost from "../InputForms/InputPost.vue";
 import { deepCopy } from "../../../util/lib";
 import DisplayAvatar from "../layout/DisplayAvatar.vue";
-import { LV, LV_LABEL } from "../../../util/level";
+import { LV, LV_LABEL, LV_COLOR } from "../../../util/level";
 import { mapGetters, mapState } from "vuex";
 
 export default {
@@ -200,8 +201,8 @@ export default {
   computed: {
     rules: () => validateRules,
     LV: () => LV,
+    LV_COLOR: () => LV_COLOR,
     lvLabel() {
-      //function(), () => 는 문맥이 다르다.
       return LV_LABEL(this.form.mb_level);
     },
     ...mapState({
@@ -211,16 +212,17 @@ export default {
     isGrant() {
       return !(
         (
-          this.admin.mb_id == this.member || // 나 자신이 수정
-          this.isSuper || //최고관리자
+          this.admin.mb_id == this.member.mb_id || //나 자신
+          this.isSuper || // 최고관리자
           this.member.mb_level < this.admin.mb_level
-        ) //대상이 자신보다 레벨이 낮을경우
+        ) // 나보다 레벨이 낮은 사용자
       );
     },
   },
   created() {
     this.form = deepCopy(this.member);
-    (this.form.mb_password = ""), (this.form.admMode = this.admMode);
+    this.form.mb_password = "";
+    this.form.admMode = this.admMode;
     this.form.deleteImage = false;
     delete this.form.mb_create_at;
     delete this.form.mb_create_ip;
@@ -229,7 +231,7 @@ export default {
     delete this.form.mb_login_at;
     delete this.form.mb_login_ip;
     delete this.form.mb_leave_at;
-    console.log(this.isSuper);
+    console.log("isGrant", this.isGrant, this.isSuper);
   },
 
   methods: {

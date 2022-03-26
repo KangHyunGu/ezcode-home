@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div class="pl-10 text-caption">
-      {{ label }} {{ value }} : {{ lvLabel }}
-    </div>
-
+    <div class="text-caption">{{label}} {{ value }} : {{ lvLabel }}</div>
     <v-slider
       :value="value"
       :min="LV.BLOCK"
@@ -12,7 +9,7 @@
       thumb-label
       :prepend-icon="icon"
       hide-details
-      @change="onChange"
+			@change="onChange"
     ></v-slider>
   </div>
 </template>
@@ -27,27 +24,26 @@ export default {
   },
   props: {
     value: Number,
-    label: {
-      type: String,
-      default: "레벨",
-    },
-    icon: {
-      type: String,
-      default: "",
-    },
+		label : {
+			type : String,
+			default : "레벨"
+		},
+		icon : {
+			type : String,
+			default :"",
+		}
   },
   computed: {
     LV: () => LV,
-    lvLabel() {
-      return LV_LABEL(this.value);
-    },
+		lvLabel() {
+			return LV_LABEL(this.value);
+		}
   },
-
-  methods: {
-    onChange(val) {
-      this.$emit("change", val);
-    },
-  },
+	methods : {
+		onChange(val) {
+			this.$emit('change', val);
+		}
+	}
 };
 </script>
 

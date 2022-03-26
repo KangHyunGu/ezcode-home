@@ -14,15 +14,14 @@
         </v-sheet>
       </v-card>
     </v-menu>
-
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn v-on="on" v-bind="attrs" icon @click="setDarkMode(!darkMode)">
-          <v-icon v-if="darkMode"> mdi-lightbulb-on-outline </v-icon>
-          <v-icon v-else> mdi-lightbulb-outline</v-icon>
+          <v-icon v-if="darkMode">mdi-lightbulb-on-outline</v-icon>
+          <v-icon v-else>mdi-lightbulb-outline</v-icon>
         </v-btn>
       </template>
-      <span>{{ darkMode ? "밝은 테마" : "어두운 테마" }} </span>
+      <span>{{ darkMode ? "밝은 테마" : "어두운 테마" }}</span>
     </v-tooltip>
 
     <v-dialog v-if="member" v-model="dialog" persistent max-width="500">
@@ -50,13 +49,20 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import UserUpdateForm from "../Auth/UserUpdateForm.vue";
+import UserUpdateForm from "../auth/UserUpdateForm.vue";
+import TooltipBtn from "../etc/TooltipBtn.vue";
 import DisplayAvatar from "./DisplayAvatar.vue";
 import MemberMenu from "./MemberMenu.vue";
 import NoMemberMenu from "./NoMemberMenu.vue";
 
 export default {
-  components: { DisplayAvatar, MemberMenu, NoMemberMenu, UserUpdateForm },
+  components: {
+    DisplayAvatar,
+    MemberMenu,
+    NoMemberMenu,
+    UserUpdateForm,
+    TooltipBtn,
+  },
   name: "SiteUser",
   data() {
     return {

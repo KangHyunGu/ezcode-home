@@ -20,27 +20,27 @@
               rounded
               elevation="2"
             >
-              <!--  하위 메뉴 단계 -->
+              <!-- 하위 메뉴 단계 -->
               <div class="icon">
                 <v-icon>mdi-subdirectory-arrow-right</v-icon>
               </div>
-              <!--  드래그 핸들러-->
+              <!-- 드레그 핸들러 -->
               <div class="handle">
                 <v-icon>mdi-drag</v-icon>
               </div>
-              <!-- 하위 메뉴가 없으면 비활성화 -->
+              <!-- 하위 메뉴가 없으면 비활성 -->
               <v-btn
                 icon
-                class="ml-4"
                 :disabled="item.subItems.length == 0"
                 small
                 @click="toggleSub(item)"
               >
-                <v-icon>mdi-chevron-down </v-icon>
+                <v-icon>mdi-chevron-down</v-icon>
               </v-btn>
               <!-- 컨텐츠 내용 -->
-              <v-icon v-if="item.isHide" color="grey">mdi-eye-off</v-icon>
-              <v-icon v-else color="primary">mdi-eye</v-icon>
+							<v-icon v-if="item.isHide" color="grey">mdi-eye-off</v-icon>
+							<v-icon v-else color="primary" >mdi-eye</v-icon>
+
               <v-text-field
                 label="title"
                 v-model="item.title"
@@ -50,7 +50,6 @@
                 readonly
                 class="ml-2"
               />
-
               <display-level :level="item.grant" :size="32" />
               <v-text-field
                 label="link"
@@ -60,14 +59,13 @@
                 class="ml-2"
                 readonly
               />
-
               <tooltip-btn
                 label="수정"
                 icon
                 small
                 color="primary"
                 childClass="ml-2"
-                @click="modifyItem(item)"
+								@click="modifyItem(item)"
               >
                 <v-icon>mdi-pencil</v-icon>
               </tooltip-btn>
@@ -78,7 +76,7 @@
                 small
                 color="error"
                 childClass="ml-2"
-                @click="removeItem(item)"
+								@click="removeItem(item)"
               >
                 <v-icon>mdi-delete</v-icon>
               </tooltip-btn>
@@ -88,7 +86,7 @@
           <nested-drag-menu
             :items="item.subItems"
             class="menu-drag-subitem"
-            :show.sync="item.show"
+            :show="item.show"
           />
         </div>
       </v-expand-transition>
@@ -98,9 +96,9 @@
 
 <script>
 import draggable from "vuedraggable";
-import TooltipBtn from "../../../components/etc/TooltipBtn.vue";
 import DisplayLevel from "../../../components/layout/DisplayLevel.vue";
-import { findParentVm } from "../../../../util/lib";
+import TooltipBtn from "../../../components/etc/TooltipBtn.vue";
+import { findParentVm } from '../../../../util/lib';
 export default {
   components: { draggable, DisplayLevel, TooltipBtn },
   name: "NestedDragMenu",
@@ -114,6 +112,9 @@ export default {
       default: true,
     },
   },
+  data() {
+    return {};
+  },
   computed: {
     dragOptions() {
       return {
@@ -125,27 +126,29 @@ export default {
     },
   },
   created() {
+    // console.log(this.items);
     for (const item of this.items) {
+      // item.show = false;
       this.$set(item, "show", false);
     }
   },
-
   methods: {
     toggleSub(item) {
       item.show = !item.show;
-      //this.$forceUpdate();
+      // this.$forceUpdate();
     },
-    removeItem(item) {
-      const idx = this.items.indexOf(item);
-      this.items.splice(idx, 1);
-    },
-    modifyItem(item) {
-      const admMenu = findParentVm(this, "AdmMenu");
-      admMenu.modifyMenu(item, this.items);
-    },
+		removeItem(item) {
+			const idx = this.items.indexOf(item);
+			this.items.splice(idx, 1);
+		},
+		modifyItem(item) {
+			const admMenu = findParentVm(this, 'AdmMenu');
+			admMenu.modifyMenu(item, this.items);
+		}
   },
 };
 </script>
 
 <style>
+
 </style>

@@ -18,9 +18,7 @@
           </v-tooltip>
         </div>
         <div>
-          <v-btn icon :disabled="isGrant" @click="$emit('update', item)"
-            ><v-icon>mdi-pencil</v-icon></v-btn
-          >
+          <v-btn icon :disabled="isGrant" @click="$emit('update', item)"><v-icon>mdi-pencil</v-icon></v-btn>
         </div>
       </div>
       <div>
@@ -28,12 +26,8 @@
           <b>{{ item.cf_key }}</b>
         </div>
         <div>
-          <type-value
-            :fieldType="item.cf_type"
-            :value="item.cf_val"
-            :readonly="true"
-          />
-        </div>
+					<type-value :fieldType="item.cf_type" :value="item.cf_val" :readonly="true"/>
+				</div>
         <div>
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
@@ -50,9 +44,7 @@
           </v-tooltip>
         </div>
         <div>
-          <v-btn icon :disabled="isGrant" @click="$emit('remove', item)"
-            ><v-icon>mdi-delete</v-icon></v-btn
-          >
+          <v-btn icon :disabled="isGrant" @click="$emit('remove',item)"><v-icon>mdi-delete</v-icon></v-btn>
         </div>
       </div>
     </div>
@@ -60,8 +52,8 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import TypeValue from "./TypeValue.vue";
+import { mapState } from 'vuex';
+import TypeValue from './TypeValue.vue';
 export default {
   components: { TypeValue },
   name: "ConfigItem",
@@ -71,15 +63,14 @@ export default {
       required: true,
     },
   },
-  computed: {
-    ...mapState({
-      member: (state) => state.user.member,
-    }),
-    isGrant() {
-      return this.item.cf_level > this.member.mb_level;
-    },
-  },
-  mounted() {},
+	computed : {
+		...mapState({
+			member : state=> state.user.member,
+		}),
+		isGrant() {
+			return this.item.cf_level > this.member.mb_level
+		}
+	},
 };
 </script>
 

@@ -4,7 +4,7 @@
       <v-icon>mdi-magnify</v-icon>
     </tooltip-btn>
     <tooltip-btn
-      v-if="!!options.stf[0]"
+			v-if="!!options.stf[0]"
       type="button"
       label="검색 초기화"
       icon
@@ -129,9 +129,9 @@ export default {
       this.form.stf = this.options.stf[0] || this.items[0].value;
       this.form.stc = this.options.stc[0] || "like";
       this.form.stx = this.options.stx[0];
-      if (this.$refs.form) {
-        this.$refs.form.resetValidation();
-      }
+			if(this.$refs.form) {
+				this.$refs.form.resetValidation();
+			}
       this.$refs.dialog.open();
     },
     async searchGo() {

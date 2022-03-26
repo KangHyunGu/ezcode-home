@@ -41,7 +41,6 @@ require('./plugins/pm2Bus');
 		next();
 	})
 
-
 	// 파비콘
 	app.use((req, res, next) => {
 		if (req.path.indexOf('favicon.ico') > -1) {
@@ -63,6 +62,7 @@ require('./plugins/pm2Bus');
 	// 글로벌 
 	global.MEMBER_PHOTO_PATH = path.join(__dirname, './upload/memberPhoto');
 	fs.mkdirSync(MEMBER_PHOTO_PATH, { recursive: true });
+	global.UPLOAD_PATH = path.join(__dirname, './upload');
 
 	// Passport
 	const passport = require('./plugins/passport');
@@ -103,7 +103,7 @@ require('./plugins/pm2Bus');
 			metas: `<!-- inject more metas -->`,
 			member: req.user || null,
 			token: req.cookies.token || null,
-			config: $config.client,
+			config: clientConfig,
 		};
 		const stream = renderer.renderToStream(ctx);
 		stream.on('end', () => {

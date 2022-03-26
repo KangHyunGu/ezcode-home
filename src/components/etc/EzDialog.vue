@@ -8,9 +8,9 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
-      <v-card-text>
-        <slot></slot>
-      </v-card-text>
+			<v-card-text>
+      	<slot></slot>
+			</v-card-text>
     </v-card>
   </v-dialog>
 </template>
@@ -31,12 +31,12 @@ export default {
   },
   methods: {
     open() {
-      this.$emit("onOpen");
+			this.$emit('onOpen');
       this.dialog = true;
     },
     close() {
       this.dialog = false;
-      this.$emit("onClose");
+			this.$emit('onClose');
     },
   },
 };

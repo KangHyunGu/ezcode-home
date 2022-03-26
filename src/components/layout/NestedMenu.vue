@@ -14,16 +14,13 @@
           <v-btn icon v-bind="{ ...getLink(item), ...isDisabled(item) }" plain>
             <v-icon>mdi-arrow-top-right</v-icon>
           </v-btn>
-          <v-icon :style="activeStyle(item.active)">mdi-chevron-down </v-icon>
+          <v-icon :style="activeStyle(item.active)">mdi-chevron-down</v-icon>
         </template>
         <nested-menu :items="item.subItems" :depth="depth + 1" />
       </v-list-group>
 
       <template v-else>
-        <v-list-item
-          v-if="isShow(item)"
-          v-bind="{ ...getLink(item), ...isDisabled(item) }"
-        >
+        <v-list-item  v-if="isShow(item)" v-bind="{ ...getLink(item), ...isDisabled(item) }">
           <v-list-item-icon v-if="depth == 0">
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -75,20 +72,20 @@ export default {
     isDisabled(item) {
       const disabled = !item.to || item.grant > this.GRANT;
       return { disabled };
+			return {disabled : false}
     },
-    isShow(item) {
-      const { disabled } = this.isDisabled(item);
-      console.log(item.title, disabled, this.menuHide);
-      if (item.isHide) {
-        // 아이템 개별 숨김이 true
-        return false;
-      }
-      if (disabled) {
-        return !this.menuHide; // 전체 설정이 true
-      } else {
-        return true;
-      }
-    },
+		isShow(item) {
+			const {disabled} = this.isDisabled(item)
+			// console.log(item.title,  disabled, this.menuHide);
+			if(item.isHide) { // 아이템 개별 숨김이 참이면 
+				return false;
+			}
+			if(disabled) { 
+				return !this.menuHide // 전체 설정이 참이면
+			} else {
+				return true;
+			}
+		}
   },
 };
 </script>

@@ -24,10 +24,10 @@ export const getters = {
 		return state.member && state.member.mb_level >= LV.SUPER;
 	},
 	GRANT(state) {
-		if (state.member) {
-			return state.member.mb_level
+		if(state.member) {
+			return state.member.mb_level;
 		}
-		return LV.BLOCK
+		return LV.BLOCK;
 	}
 };
 
@@ -38,8 +38,6 @@ export const actions = {
 		if (data && data.member && data.token) {
 			commit('SET_MEMBER', data.member);
 			commit('SET_TOKEN', data.token);
-			//{root: true} store의 root를 찾음
-			// root를 정의 하지 않을경우 user의 하위 디렉토리를 찾게 되는 vuex 성질이 있음
 			dispatch('socket/joinRoom', data.member.mb_id, { root: true });
 		}
 	},

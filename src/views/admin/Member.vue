@@ -58,7 +58,7 @@
 
       <template v-slot:item.cmd="{ item }">
         <tooltip-btn icon label="수정" @click="openDialog(item)">
-          <v-icon> mdi-pencil </v-icon>
+          <v-icon>mdi-pencil</v-icon>
         </tooltip-btn>
       </template>
     </v-data-table>
@@ -69,7 +69,6 @@
       class="mt-4"
     ></v-pagination>
 
-    <!-- User update -->
     <ez-dialog
       label="회원 수정"
       ref="dialog"
@@ -82,10 +81,10 @@
         :member="curMember"
         :isLoading="loading"
         :admMode="true"
+        :isType="options.type"
         @onSave="saveMember"
         @onLeave="leaveMember"
         @onRestore="restoreMember"
-        :isType="options.type"
       />
     </ez-dialog>
   </v-container>
@@ -93,11 +92,11 @@
 
 <script>
 import qs from "qs";
-import SearchField from "../../components/layout/SearchField.vue";
 import axios from "axios";
+import SearchField from "../../components/layout/SearchField.vue";
 import TooltipBtn from "../../components/etc/TooltipBtn.vue";
 import EzDialog from "../../components/etc/EzDialog.vue";
-import UserUpdateForm from "../../components/Auth/UserUpdateForm.vue";
+import UserUpdateForm from "../../components/auth/UserUpdateForm.vue";
 import { deepCopy } from "../../../util/lib";
 import DisplayId from "../../components/layout/DisplayId.vue";
 import DisplayName from "../../components/layout/DisplayName.vue";
@@ -159,13 +158,11 @@ export default {
           text: "수정일",
           value: "mb_update_at",
           align: "start",
-          searchable: true,
         },
         {
           text: "탈퇴일",
           value: "mb_leave_at",
           align: "start",
-          searchable: true,
         },
         {
           text: "CMD",
@@ -192,7 +189,6 @@ export default {
     searchItems() {
       return this.headers.filter((item) => item.searchable);
     },
-
     headers() {
       return this.options.type == "member"
         ? this.headersOrigin.filter((item) => item.value != "mb_leave_at")
@@ -252,7 +248,7 @@ export default {
       this.loading = true;
       const payload = deepCopy(this.options);
       // 회원 / 탈퇴회원
-      if (this.options.type == "member") {
+      if (payload.type == "member") {
         payload.stf.push("mb_leave_at");
         payload.stx.push("n");
         payload.stc.push("null");
@@ -274,7 +270,7 @@ export default {
         this.loading = false;
         this.pageReady = true;
         this.pageRouting = false;
-        console.log("data : ", data);
+
         if (data) {
           this.items = data.items;
           this.totalItems = data.totalItems;
@@ -294,7 +290,7 @@ export default {
           stf: this.options.stf[0] || undefined,
           stx: this.options.stx[0] || undefined,
           stc: this.options.stc[0] || undefined,
-          type: this.options.type, //== "member" ? undefined : "leave",
+          type: this.options.type, //== 'member'? undefined : 'leave',
         };
         const query = qs.stringify(opt);
         if (this.pageReady) {
@@ -308,21 +304,20 @@ export default {
       this.curMember = member;
       this.$refs.dialog.open();
     },
-
     dialogClose() {
       this.curMember = null;
     },
-
     async saveMember(form) {
       // axios 요청
       this.loading = true;
-      const data = await this.$axios.patch("/api/member", form);
+      const data = await this.$axios.patch(`/api/member`, form);
       this.loading = false;
       if (data) {
         const idx = this.items.indexOf(this.curMember);
         this.items.splice(idx, 1, data);
         this.$toast.info(`${data.mb_name} 정보 수정 하였습니다.`);
-        // 소켓을 회원아이디 룸에 전송
+        // console.log(data);
+        // 소켓을 보내면 회원아이디 룸에
         this.$socket.emit("member:admUpdate", data);
         this.$refs.dialog.close();
       }
@@ -335,23 +330,17 @@ export default {
           icon: "mdi-alert",
         }
       );
-
       if (!result) return;
-
-      this.isLoading = true;
-
+      this.loading = true;
       const form = {
         mb_id: this.curMember.mb_id,
         mb_leave_at: this.$moment().format("LT"),
       };
       const data = await this.$axios.patch(`/api/member`, form);
-
       if (data) {
         this.$toast.info(`${this.curMember.mb_name}님 탈퇴 처리 하였습니다.`);
         this.$refs.dialog.close();
-        //탈퇴 처리 후 fetch 처리
         this.pageRouting = true;
-        //User정보 목록 다시 가져옴..
         this.fetchData();
       }
     },
@@ -363,23 +352,17 @@ export default {
           icon: "mdi-alert",
         }
       );
-
       if (!result) return;
-
-      this.isLoading = true;
-
+      this.loading = true;
       const form = {
         mb_id: this.curMember.mb_id,
         mb_leave_at: null,
       };
       const data = await this.$axios.patch(`/api/member`, form);
-
       if (data) {
-        this.$toast.info(`${this.curMember.mb_name}님 탈퇴 처리 하였습니다.`);
+        this.$toast.info(`${this.curMember.mb_name}님 복원 하였습니다.`);
         this.$refs.dialog.close();
-        //탈퇴 처리 후 fetch 처리
         this.pageRouting = true;
-        //User정보 목록 다시 가져옴..
         this.fetchData();
       }
     },

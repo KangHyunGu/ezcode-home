@@ -42,9 +42,9 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import FindIdForm from "../../components/Auth/FindIdForm.vue";
-import FindPwForm from "../../components/Auth/FindPwForm.vue";
-import SignInForm from "../../components/Auth/SignInForm.vue";
+import FindIdForm from "../../components/auth/FindIdForm.vue";
+import FindPwForm from "../../components/auth/FindPwForm.vue";
+import SignInForm from "../../components/auth/SignInForm.vue";
 import SiteTitle from "../../components/layout/SiteTitle.vue";
 export default {
   components: { SiteTitle, SignInForm, FindIdForm, FindPwForm },

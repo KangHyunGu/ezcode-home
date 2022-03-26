@@ -31,8 +31,6 @@ const routes = [
     name: 'AdmConfig',
     component: () => import(/* webpackChunkName: "admConfig" */ '../views/admin/Config.vue')
   },
-  //웹팩(js, css, image) 코드  /* webpackChunkName: "admMember" */
-  //ChunkName을 정의 했을 경우 그 name에 해당되는 javasciprt를 가져옴..
   {
     path: '/adm/member',
     name: 'AdmMember',
@@ -49,11 +47,15 @@ const routes = [
     component: () => import(/* webpackChunkName: "admBoard" */ '../views/admin/BoardRenderer.vue')
   },
   {
+    path: '/board/*',
+    name: 'Board',
+    component: () => import(/* webpackChunkName: "Board" */ '../views/board/Board.vue')
+  },
+  {
     path: '*',
     name: 'Error',
     component: () => import(/* webpackChunkName: "error" */ '../views/Error.vue')
   },
-
 ]
 
 export default routes;

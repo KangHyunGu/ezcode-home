@@ -44,7 +44,7 @@ import NestedDragMenu from "./MenuComponents/NestedDragMenu.vue";
 export default {
   components: { TooltipBtn, NestedDragMenu, EzDialog, MenuForm },
   name: "AdmMenu",
-  title: "메뉴관리",
+	title : "메뉴관리",
   data() {
     return {
       items: [],
@@ -57,25 +57,19 @@ export default {
       menu: (state) => state.config.menu,
     }),
   },
-
-  //SSR 할 경우 동작하면 안되기 때문어 mounted로
   mounted() {
     this.init();
   },
-
   methods: {
     ...mapActions(["configSave"]),
     init() {
       const items = deepCopy(this.menu);
-      // 하위 메뉴 show 할지의 여부
       for (const item of items) {
         this.$set(item, "show", false);
-        //item.show = false;
       }
-
       this.items = items;
+      // console.log(items);
     },
-
     addMenu() {
       this.curItem = null;
       this.$refs.dialog.open();
@@ -94,7 +88,6 @@ export default {
         form.show = false;
         this.items.push(form);
       }
-
       this.$refs.dialog.close();
     },
     async refresh() {
@@ -103,17 +96,15 @@ export default {
         "메뉴 초기화",
         { icon: "mdi-refresh" }
       );
-
       if (!result) return;
       this.init();
     },
     async updateMenu() {
-      const result = await this.$ezNotify.confirm(
+			const result = await this.$ezNotify.confirm(
         "메뉴를 저장 하시겠습니까?",
         "메뉴저장",
         { icon: "mdi-content-save-outline" }
       );
-
       if (!result) return;
       const data = await this.configSave({
         cf_client: 1,
@@ -125,10 +116,9 @@ export default {
         cf_type: "Json",
         cf_val: JSON.stringify(this.items),
       });
-
       if (data) {
-        this.$toast.info("메뉴를 업데이트 하였습니다.");
-        //console.log(data);
+				this.$toast.info('메뉴를 업데이트 하였습니다.');
+        // console.log(data);
         this.$socket.emit("config:update", {
           key: data.cf_key,
           value: data.cf_val,

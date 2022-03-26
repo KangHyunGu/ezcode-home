@@ -102,12 +102,7 @@ const memberModel = {
 		// 레벨은 관리자 모드 amdMode true
 		const admMode = payload.admMode;
 		const mb_id = payload.mb_id;
-
-		//payload.deleteImage 값 정보가 string type으로 들어가는 경우가 있음...
-		const deleteImage = typeof (payload.deleteImage) == 'string'
-			? payload.deleteImage == 'true'
-			: payload.deleteImage
-
+		const deleteImage = typeof (payload.deleteImage) == 'string' ? payload.deleteImage == 'true' : payload.deleteImage;
 		delete payload.admMode;
 		delete payload.mb_id;
 		delete payload.deleteImage;
@@ -160,6 +155,7 @@ const memberModel = {
 				}
 			});
 		}
+		// console.log(payload);
 		const sql = sqlHelper.Update(TABLE.MEMBER, payload, { mb_id });
 		const [row] = await db.execute(sql.query, sql.values);
 
@@ -402,7 +398,7 @@ const memberModel = {
 		items.forEach(item => {
 			clearMemberField(item);
 		});
-		return { items, totalItems, sql, options };
+		return { items, totalItems };
 	}
 
 }

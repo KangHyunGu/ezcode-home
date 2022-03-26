@@ -38,7 +38,7 @@ const sqlHelper = {
 		// 검색 
 		let where = "";
 		let whereArr = [];
-		let values = [];
+		let values=[];
 		if (options.stf && options.stx && options.stc) {
 			for (let i in options.stf) {
 				const field = options.stf[i];
@@ -47,7 +47,7 @@ const sqlHelper = {
 				if (field && text) {
 					switch (compare) {
 						case "like":
-							whereArr.push(` ${field} LIKE `);
+							whereArr.push(` ${field} LIKE ? `);
 							values.push(`%${text}%`)
 							break;
 						case 'null':
@@ -57,29 +57,29 @@ const sqlHelper = {
 							whereArr.push(` ${field} IS NOT NULL `);
 							break;
 						case 'lt':
-							whereArr.push(` ${field} < ? `)
+							whereArr.push(` ${field} < ? ` );
 							values.push(text);
-							break;
+						break;
 						case 'lte':
-							whereArr.push(` ${field} <= ? `)
+							whereArr.push(` ${field} <= ? ` );
 							values.push(text);
-							break;
+						break;
 						case 'eq':
-							whereArr.push(` ${field} = ? `)
+							whereArr.push(` ${field} = ? ` );
 							values.push(text);
-							break;
+						break;
 						case 'ne':
-							whereArr.push(` ${field} != ? `)
+							whereArr.push(` ${field} != ? ` );
 							values.push(text);
-							break;
+						break;
 						case 'gt':
-							whereArr.push(` ${field} > ? `)
+							whereArr.push(` ${field} > ? ` );
 							values.push(text);
-							break;
+						break;
 						case 'gte':
-							whereArr.push(` ${field} >= ? `)
+							whereArr.push(` ${field} >= ? ` );
 							values.push(text);
-							break;
+						break;
 					}
 				}
 			}

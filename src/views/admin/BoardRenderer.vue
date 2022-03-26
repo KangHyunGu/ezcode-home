@@ -1,14 +1,15 @@
 <template>
-  <board-list v-if="action == 'list'" />
-  <board-form v-else-if="action == 'form'" :table="table" />
-  <error v-else />
-  <!-- <component v-bind:is="viewComponent" :table="table"/> -->
+  <board-list v-if="action=='list'"/>
+	<board-form v-else-if="action=='form'" :table="table"/>
+	<error v-else />
+	<!-- <component v-bind:is="viewComponent" :table="table"/> -->
 </template>
 
 <script>
 import BoardList from "./Board/BoardList.vue";
 import BoardForm from "./Board/BoardForm.vue";
 import Error from "../Error.vue";
+
 export default {
   components: { BoardList, BoardForm, Error },
   name: "AdmBoardRenderer",
@@ -40,4 +41,4 @@ export default {
 </script>
 
 <style>
-</style> 
+</style>

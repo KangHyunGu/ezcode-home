@@ -40,8 +40,8 @@ module.exports = function (webServer) {
 			}
 		});
 
-		socket.on('room:chat', (data) => {
-			const { toId, fromId, userMsg } = data;
+		socket.on('room:chat', (data)=>{
+			const {toId, fromId, userMsg} = data;
 			io.to(toId).emit('room:chat', { fromId, userMsg });
 		});
 	})

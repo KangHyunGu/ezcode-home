@@ -8,28 +8,28 @@
   >
     <v-btn
       plain
-      href="https://materialdesignicons.com"
-      target="_black"
+      href="https://materialdesignicons.com/"
+      target="_blank"
       color="success"
       small
     >
-      머터리얼 디자인 아이콘</v-btn
-    >
+      머터리얼 디자인 아이콘 검색
+    </v-btn>
+
     <v-text-field
       label="아이콘"
       v-model="form.icon"
       :prepend-icon="form.icon"
     />
-
     <v-text-field
       label="이름"
       v-model="form.title"
       :rules="[rules.require({ label: '이름' })]"
     />
     <v-text-field label="링크" v-model="form.to" />
-    <input-level label="접근권한" v-model="form.grant" />
+    <input-level label="접근 권한" v-model="form.grant" />
     <v-checkbox label="새창에서 열기" v-model="form.newTab" />
-    <v-checkbox label="메뉴 숨김" v-model="form.isHide" />
+		<v-checkbox label="메뉴 숨김" v-model="form.isHide" />
     <v-btn block type="submit" color="primary"> 저장 </v-btn>
   </v-form>
 </template>
@@ -37,7 +37,7 @@
 <script>
 import InputLevel from "../../../components/InputForms/InputLevel.vue";
 import validateRules from "../../../../util/validateRules";
-import { deepCopy } from "../../../../util/lib";
+import { deepCopy } from '../../../../util/lib';
 export default {
   components: { InputLevel },
   name: "MenuForm",
@@ -56,14 +56,11 @@ export default {
   computed: {
     rules: () => validateRules,
   },
-
   watch: {
-    // item 정보가 수정 될 경우 init() 함수로 재 샛팅
     item() {
       this.init();
     },
   },
-
   mounted() {
     this.init();
   },
@@ -71,9 +68,8 @@ export default {
   methods: {
     init() {
       if (this.item) {
-        this.form = deepCopy(this.item);
+				this.form = deepCopy(this.item);
       } else {
-        // 기본 값 삽입
         this.form = {
           grant: 0,
           icon: "mdi-",
@@ -81,21 +77,18 @@ export default {
           subItems: [],
           title: "",
           to: "",
-          isHide: false,
+					isHide : false
         };
       }
-      //console.log("initFormData : ", this.form);
+      // console.log("menuForm", this.form);
     },
-
-    async save() {
-      this.$refs.form.validate();
-      // validate() 값 끝나기 전까지 기다린이후
-      // 프레임에서 값을 가져온다.(this.valid)
-      await this.$nextTick();
-      if (!this.valid) return;
-      this.$emit("save", this.form);
-      this.init();
-    },
+		async save() {
+			this.$refs.form.validate();
+			await this.$nextTick();
+			if(!this.valid) return;
+			this.$emit('save', this.form);
+			this.init();
+		}
   },
 };
 </script>
