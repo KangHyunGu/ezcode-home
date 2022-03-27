@@ -200,24 +200,34 @@ export default {
         }
       }
 
+      // 에디터에서 업로드한 이미지
+      formData.append("upImages", JSON.stringify(this.upImages));
+
       let wr_id;
       if (this.id) {
         // TODO : DB 수정
         wr_id = await this.update(formData);
       } else {
-        // TODO : DB 입력
+        // DB 입력
         wr_id = await this.insert(formData);
       }
 
       //글 작성이 정상적으로 완료 되었다면..
       if (wr_id) {
         this.isWrite = true;
+        this.$router.push(`/board/${this.table}/${wr_id}`);
       }
 
       this.loading = false;
     },
 
-    async insert(formData) {},
+    async insert(formData) {
+      const data = await this.$axios.post(
+        `/api/board/write/${this.table}`,
+        formData
+      );
+      return data.wr_id;
+    },
     async update(formData) {},
   },
 };
