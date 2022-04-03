@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const { launchBus } = require('pm2');
 const { isGrant, LV } = require('../../util/level');
 const { modelCall, getIp } = require('../../util/lib');
 const boardModel = require('./_model/boardModel');
@@ -82,12 +81,11 @@ router.put(`/write/:bo_table/:wr_id`, async (req, res) => {
 // 게시판 목록 반환
 router.get('/list/:bo_table', async (req, res) => {
     const { bo_table } = req.params;
-
     //권한 확인    
     const config = await modelCall(boardModel.getConfig, bo_table);
     const grant = isGrant(req, config.bo_write_level);
     if (!grant) {
-        return res.json({ err: '게시물 작성 권한이 없습니다' })
+        return res.json({ err: '게시물 목록 권한이 없습니다' })
     }
     const options = req.query;
     const result = await modelCall(boardModel.getList, bo_table, config, options, req.user);

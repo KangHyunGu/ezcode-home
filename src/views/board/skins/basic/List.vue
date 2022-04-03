@@ -39,6 +39,7 @@
 <script>
 import qs from "qs";
 import { deepCopy } from "../../../../../util/lib";
+import { mapMutations, mapState } from "vuex";
 export default {
   name: "BasicList",
   props: {
@@ -63,6 +64,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      initData: (state) => state.initData,
+    }),
     table() {
       return this.config.bo_table;
     },
@@ -132,17 +136,26 @@ export default {
       deep: true,
     },
   },
+  syncData() {
+    console.log("LIST SYNC DATA");
+    if (this.initData && this.initData.list) {
+      return this.setData(this.initData.list);
+    } else {
+      return this.fetchData();
+    }
+  },
   methods: {
+    ...mapMutations(["SET_INITDATA"]),
     getPayload() {
       const payload = deepCopy(this.options);
       //console.log(this.options);
       // 정렬을 설정값에 있는 정렬로 처리(현재 sortDesc가 잘못되어 있어 강제로 초기화)
-      payload.sortby = [];
-      payload.sortDesc = [];
-      for (const sort of this.config.bo_sort) {
-        payload.sortBy.push(sort.by);
-        payload.sortDesc.push(sort.desc == 1);
-      }
+      // payload.sortBy = [];
+      // payload.sortDesc = [];
+      // for (const sort of this.config.bo_sort) {
+      //   payload.sortBy.push(sort.by);
+      //   payload.sortDesc.push(sort.desc == 1);
+      // }
 
       console.log("payload:", payload);
       // 리플이 아닌 목록
@@ -157,9 +170,20 @@ export default {
     async fetchData() {
       const payload = this.getPayload();
       const query = qs.stringify(payload);
+
+      // SSR로 구동시 인증이 필요 할 경우
+      const headers = {};
+      if (this.$ssrContext) {
+        headers.token = this.$ssrContext.token;
+      }
+
       const data = await this.$axios.get(
-        `/api/board/list/${this.table}?${query}`
+        `/api/board/list/${this.table}?${query}`,
+        { headers }
       );
+      if (this.$ssrContext) {
+        this.SET_INITDATA({ list: data });
+      }
       this.setData(data);
     },
     setData(data) {

@@ -217,6 +217,13 @@ const boardModel = {
 
     async getList(bo_table, config, options, member) {
         const table = `${TABLE.VIEW}${bo_table}`;
+
+        options.sortBy = [];
+        options.sortDesc = [];
+        for (const sort of config.bo_sort) {
+            options.sortBy.push(sort.by);
+            options.sortDesc.push(sort.desc == 1);
+        }
         console.log(options);
         const sql = sqlHelper.SelectLimit(table, options);
         const [[{ totalItems }]] = await db.execute(sql.countQuery, sql.values);
