@@ -10,16 +10,32 @@
     <v-card-text>
       <ez-tiptap :editable="false" v-model="item.wr_content" />
     </v-card-text>
+    <v-card-text>
+      <v-card-actions>
+        <v-btn
+          v-if="isModify == 'MODIFY'"
+          color="info"
+          :to="`/board/${table}/${item.wr_id}?act=write`"
+        >
+          <v-icon left>mdi-pencil</v-icon>
+          수정
+        </v-btn>
+        <v-btn
+          v-if="access.reply"
+          color="seconday"
+          :to="`/board/${table}/${item.wr_id}?act=reply`"
+        >
+          <v-icon>mdi-subdirectory-arrow-right</v-icon>
+          답글쓸기
+        </v-btn>
+      </v-card-actions>
+    </v-card-text>
   </v-card>
-  <!-- <div>
-    Basic Read
-    <v-btn :to="`/board/${table}`">목록</v-btn>
-    <v-btn :to="`/board/${table}?act=write`">쓰기</v-btn>
-    <v-btn :to="`/board/${table}/2`">읽기</v-btn>
-  </div> -->
 </template>
 
 <script>
+import { mapGetters, mapState } from "vuex";
+import { LV } from "../../../../../util/level";
 export default {
   name: "BasicRead",
   props: {
@@ -33,8 +49,24 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      member: (state) => state.user.member,
+    }),
+    ...mapGetters("user", ["GRANT"]),
     table() {
       return this.config.bo_table;
+    },
+    isModify() {
+      if (this.member) {
+        // 게시물 작성자이거나 최고 관리자 이면
+        if (this.member.mb_id == this.item.mb_id || this.GRANT >= LV.SUPER) {
+          return "MODIFY";
+        }
+      } else if (this.item.mb_id == 0) {
+        // 비회원일때
+        return "NO_MEMBER";
+      }
+      return "";
     },
   },
   mounted() {

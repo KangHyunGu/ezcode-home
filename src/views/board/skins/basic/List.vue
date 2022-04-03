@@ -23,6 +23,12 @@
           plain
           class="justify-start pl-0"
         >
+          <v-icon
+            v-if="item.wr_dep > 0"
+            :style="{ 'padding-left': `${(item.wr_dep - 1) * 16}px` }"
+          >
+            mdi-subdirectory-arrow-right
+          </v-icon>
           <div>{{ item.wr_title }}</div>
         </v-btn>
       </template>
@@ -73,6 +79,10 @@ export default {
           searchable: false,
           width: 60,
         },
+        // { text: "GRP", value: "wr_grp" },
+        // { text: "ORD", value: "wr_order" },
+        // { text: "DRP", value: "wr_dep" },
+        // { text: "RP", value: "wr_parent" },
         {
           text: "제목",
           value: "wr_title",
@@ -125,7 +135,10 @@ export default {
   methods: {
     getPayload() {
       const payload = deepCopy(this.options);
-      // 정렬을 설정값에 있는 정렬로 처리
+      //console.log(this.options);
+      // 정렬을 설정값에 있는 정렬로 처리(현재 sortDesc가 잘못되어 있어 강제로 초기화)
+      payload.sortby = [];
+      payload.sortDesc = [];
       for (const sort of this.config.bo_sort) {
         payload.sortBy.push(sort.by);
         payload.sortDesc.push(sort.desc == 1);

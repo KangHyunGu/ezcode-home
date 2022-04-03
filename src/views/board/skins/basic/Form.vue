@@ -16,6 +16,7 @@
         v-model="form.wr_category"
         :items="config.bo_category"
         :rules="[rules.require({ label: '카테고리' })]"
+        :readonly="!!parentItem"
       ></v-select>
       <template v-if="!member">
         <v-text-field
@@ -41,6 +42,18 @@
           :rules="[rules.matchValue(form.wr_password)]"
         />
       </template>
+
+      <v-expansion-panels v-if="parentItem">
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            부모글 : {{ parentItem.wr_title }}
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <ez-tiptap v-model="parentItem.wr_content" :editable="true" />
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+
       <v-text-field
         label="제목"
         v-model="form.wr_title"
@@ -78,7 +91,19 @@
           :label="fileTitle(i)"
           v-model="uploadFiles[i - 1]"
           show-size
+          :disabled="
+            form.wrFiles && form.wrFiles[i - 1]
+              ? !form.wrFiles[i - 1].remove
+              : false
+          "
         />
+        <div v-if="form.wrFiles && form.wrFiles[i - 1]">
+          <v-checkbox
+            v-model="form.wrFiles[i - 1].remove"
+            label="삭제"
+            @change="uploadFiles[i - 1] = null"
+          />
+        </div>
       </div>
     </v-form>
   </v-container>
@@ -109,6 +134,7 @@ export default {
       loading: false,
       upImages: [],
       isWrite: false, // 작성완료여부
+      parentItem: null, // 부모글
     };
   },
   computed: {
@@ -117,6 +143,13 @@ export default {
     }),
     table() {
       return this.config.bo_table;
+    },
+    pid() {
+      if (this.$route.query.act == "reply") {
+        return this.id;
+      } else {
+        return 0;
+      }
     },
     pageTitle() {
       return (
@@ -137,14 +170,29 @@ export default {
   methods: {
     async init() {
       if (this.id) {
+        const data = await this.$axios.get(
+          `/api/board/read/${this.table}/${this.id}`
+        );
+        if (this.pid) {
+          // 부모글의 답글
+          this.initForm();
+          this.form.wr_category = data.wr_category; //부모글의 카테고리를 따라감
+          this.parentItem = data;
+        } else {
+          // 수정
+          this.form = data;
+        }
       } else {
+        // 새글
         this.initForm();
       }
+
+      console.log("this.form : ", this.form);
     },
     initForm() {
       const form = {
         wr_reply: 0,
-        wr_parent: 0, // TODO : 추후 답근 작성시 부모글 ID를 넣음
+        wr_parent: this.pid, // 답글 작성시 부모글 ID를 넣음
         mb_id: this.member ? this.member.mb_id : 0, // 0이면 비회원 글 작성
         wr_email: this.member ? this.member.mb_email : "",
         wr_name: this.member ? this.member.mb_name : "",
@@ -153,6 +201,8 @@ export default {
         wr_title: "",
         wr_content: "",
         wrTags: [],
+        //wrImgs: [],
+        //wrFiles: [],
       };
       for (let i = 1; i <= 10; i++) {
         form[`wr_${i}`] = "";
@@ -161,7 +211,12 @@ export default {
     },
     fileTitle(i) {
       // TODO : 수정 할때 기존 업로드 된 파일을 이곳에서 재활용
-      return `첨부파일 ${i}`;
+      if (this.form.wrFiles) {
+        const wrFile = this.form.wrFiles[i - 1];
+        return wrFile && !wrFile.remove ? wrFile.bf_name : `첨부파일 ${i}`;
+      } else {
+        return `첨부파일 ${i}`;
+      }
     },
     async uploadImage({ file, desc, callback }) {
       const formData = new FormData();
@@ -204,7 +259,7 @@ export default {
       formData.append("upImages", JSON.stringify(this.upImages));
 
       let wr_id;
-      if (this.id) {
+      if (this.id && !this.pid) {
         // TODO : DB 수정
         wr_id = await this.update(formData);
       } else {
@@ -228,7 +283,14 @@ export default {
       );
       return data.wr_id;
     },
-    async update(formData) {},
+    async update(formData) {
+      console.log(`/api/board/write/${this.table}/${this.id}`);
+      const data = await this.$axios.put(
+        `/api/board/write/${this.table}/${this.id}`,
+        formData
+      );
+      return data.wr_id;
+    },
   },
 };
 </script>

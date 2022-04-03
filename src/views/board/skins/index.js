@@ -10,6 +10,12 @@ requireModule.keys().forEach(filename => {
 
 });
 
-console.log('module : ', modules);
+// Object
+// BasicForm: ƒ ()
+// BasicList: ƒ ()
+// BasicRead: ƒ ()
+// GalleryForm: ƒ ()
+// GalleryList: ƒ ()
+// GalleryRead: ƒ ()
 
 export default modules;
