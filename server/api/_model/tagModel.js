@@ -23,8 +23,10 @@ const tagModel = {
         INSERT INTO TABLE (a, b, c) VALUES(?, ?, ?), (?, ?, ?), (?, '?', ?);
         values = 
         */
-        const sql = sqlHelper.InsertArray(TABLE.BOARD_TAGS, tagData);
-        await db.execute(sql.query, sql.values);
+        if (tagData.length) {
+            const sql = sqlHelper.InsertArray(TABLE.BOARD_TAGS, tagData);
+            await db.execute(sql.query, sql.values);
+        }
     },
 
     async deleteTags(bo_table, wr_id) {

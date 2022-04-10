@@ -2,10 +2,6 @@
   <v-container>
     <v-toolbar>
       <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
-      <v-sheet v-if="config.bo_use_category == 1" width="150" class="ml-4">
-        <cate-select :options.sync="options" />
-      </v-sheet>
-      <search-field :items="searchItems" :options.sync="options" class="ml-4" />
       <v-spacer />
       <v-btn :to="`/board/${table}?act=write`" color="primary">
         <v-icon left>mdi-pencil</v-icon>
@@ -43,11 +39,8 @@
 <script>
 import qs from "qs";
 import { deepCopy } from "../../../../../util/lib";
-import { mapActions, mapMutations, mapState } from "vuex";
-import SearchField from "../../../../components/layout/SearchField.vue";
-import CateSelect from "./component/CateSelect.vue";
+import { mapMutations, mapState } from "vuex";
 export default {
-  components: { SearchField, CateSelect },
   name: "BasicList",
   props: {
     config: Object,
@@ -59,15 +52,20 @@ export default {
   data() {
     return {
       loading: false,
-      options: {},
-      pageRouting: false,
-      pageReady: false,
+      items: [],
+      totalItems: 0,
+      options: {
+        itemsPerPage: 10,
+        page: 1,
+        stf: [""],
+        stc: [""],
+        stx: [""],
+      },
     };
   },
   computed: {
     ...mapState({
-      items: (state) => state.board.list,
-      totalItems: (state) => state.board.totalItems,
+      initData: (state) => state.initData,
     }),
     table() {
       return this.config.bo_table;
@@ -129,15 +127,6 @@ export default {
       }
       return headers;
     },
-    searchItems() {
-      const arr = this.headers.filter((item) => item.searchable);
-      arr.push({
-        text: "내용",
-        value: "wr_content",
-      });
-      console.log("arr : ", arr);
-      return arr;
-    },
   },
   watch: {
     options: {
@@ -146,62 +135,28 @@ export default {
       },
       deep: true,
     },
-    table() {
-      this.fetchData();
-    },
   },
-  serverPrefetch() {
-    return this.fetchData();
+  syncData() {
+    console.log("LIST SYNC DATA");
+    if (this.initData && this.initData.list) {
+      return this.setData(this.initData.list);
+    } else {
+      return this.fetchData();
+    }
   },
-
-  created() {
-    this.options = this.initOptions();
-  },
-  mounted() {
-    window.addEventListener("popstate", this.routeChange);
-  },
-  destroyed() {
-    window.removeEventListener("popstate", this.routeChange);
-  },
-
   methods: {
-    ...mapActions("board", ["getBoardList"]),
-    initOptions() {
-      const { query } = this.$route;
-      const options = {
-        page: Number(query.page) || 1,
-        itemsPerPage: Number(query.itemsPerPage) || 10,
-        stf: [query.stf || "", "wr_category"],
-        stx: [query.stx || "", ""],
-        stc: [query.stc || "", "eq"],
-      };
-      return options;
-    },
-    pushState() {
-      console.log("PageRouting", this.pageRouting);
-      if (!this.pageRouting) {
-        const opt = {
-          page: this.options.page,
-          itemsPerPage: this.options.itemsPerPage,
-          stf: this.options.stf[0] || undefined,
-          stx: this.options.stx[0] || undefined,
-          stc: this.options.stc[0] || undefined,
-          ca: this.options.stx[1] || undefined,
-        };
-        const query = qs.stringify(opt);
-        if (this.pageReady) {
-          history.pushState(null, null, `${this.$route.path}?${query}`);
-        } else {
-          history.replaceState(null, null, `${this.$route.path}?${query}`);
-        }
-      }
-    },
-    routeChange() {
-      this.pageRouting = true;
-      this.options = this.initOptions();
-    },
+    ...mapMutations(["SET_INITDATA"]),
     getPayload() {
       const payload = deepCopy(this.options);
+      //console.log(this.options);
+      // 정렬을 설정값에 있는 정렬로 처리(현재 sortDesc가 잘못되어 있어 강제로 초기화)
+      // payload.sortBy = [];
+      // payload.sortDesc = [];
+      // for (const sort of this.config.bo_sort) {
+      //   payload.sortBy.push(sort.by);
+      //   payload.sortDesc.push(sort.desc == 1);
+      // }
+
       console.log("payload:", payload);
       // 리플이 아닌 목록
       payload.stf.push("wr_reply");
@@ -209,6 +164,7 @@ export default {
       payload.stx.push("0");
 
       // TODO : 카테고리 별로도 검색
+
       return payload;
     },
     async fetchData() {
@@ -220,8 +176,19 @@ export default {
       if (this.$ssrContext) {
         headers.token = this.$ssrContext.token;
       }
-      console.log("query : ", query);
-      await this.getBoardList({ vm: this, query, headers });
+
+      const data = await this.$axios.get(
+        `/api/board/list/${this.table}?${query}`,
+        { headers }
+      );
+      if (this.$ssrContext) {
+        this.SET_INITDATA({ list: data });
+      }
+      this.setData(data);
+    },
+    setData(data) {
+      this.items = data.items;
+      this.totalItems = data.totalItems;
     },
   },
 };

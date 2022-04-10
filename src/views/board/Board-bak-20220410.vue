@@ -4,7 +4,7 @@
 
 <script>
 import upperFirst from "lodash/upperFirst";
-import { mapGetters, mapMutations, mapState, mapActions } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import SKINS from "./skins";
 import BoardError from "./BoardError.vue";
 export default {
@@ -12,12 +12,12 @@ export default {
   name: "Board",
   data() {
     return {
-      // config: null,
+      config: null,
     };
   },
   computed: {
     ...mapState({
-      config: (state) => state.board.config,
+      initData: (state) => state.initData,
     }),
     ...mapGetters({
       GRNAT: "user/GRANT",
@@ -72,25 +72,37 @@ export default {
   },
   watch: {
     table() {
-      // this.config = null;
-      // this.fetchConfig();
-      this.getBoardConfig(this.table);
+      this.config = null;
+      this.fetchConfig();
     },
-  },
-  serverPrefetch() {
-    return this.getBoardConfig(this.table);
   },
   mounted() {
     // console.log(this.pathMatch, this.table, this.wr_id, this.action);
     // this.fetchConfig();
-
-    //최포 CSR로 호출 할 때
-    if (!this.config) {
-      this.getBoardConfig(this.table);
+    console.log("initData", this.initData);
+  },
+  syncData() {
+    if (this.initData && this.initData.config) {
+      return this.setConfig(this.initData.config);
+    } else {
+      return this.fetchConfig();
     }
   },
   methods: {
-    ...mapActions("board", ["getBoardConfig"]),
+    ...mapMutations(["SET_INITDATA"]),
+    async fetchConfig() {
+      const data = await this.$axios.get(`/api/board/config/${this.table}`);
+      if (this.$ssrContext) {
+        console.log("SET_INITDATA", data.bo_table);
+        this.SET_INITDATA({ config: data });
+      }
+      this.setConfig(data);
+    },
+    setConfig(data) {
+      if (data) {
+        this.config = data;
+      }
+    },
   },
 };
 </script>

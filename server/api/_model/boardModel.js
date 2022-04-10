@@ -224,7 +224,7 @@ const boardModel = {
             options.sortBy.push(sort.by);
             options.sortDesc.push(sort.desc == 1);
         }
-        console.log(options);
+
         const sql = sqlHelper.SelectLimit(table, options);
         const [[{ totalItems }]] = await db.execute(sql.countQuery, sql.values);
         const [items] = await db.execute(sql.query, sql.values);
