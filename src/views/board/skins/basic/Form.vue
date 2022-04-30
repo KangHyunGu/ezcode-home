@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-toolbar>
       <v-toolbar-title>{{ config.bo_subject }} 게시판</v-toolbar-title>
       <v-spacer />

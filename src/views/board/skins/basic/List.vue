@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-toolbar>
       <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
       <v-sheet v-if="config.bo_use_category == 1" width="150" class="ml-4">
@@ -19,22 +19,58 @@
       :options.sync="options"
       :server-items-length="totalItems"
       :loading="loading"
+      class="fixedTable"
     >
+      <template v-slot:item.no="{ index }">
+        {{ getNo(index) }}
+      </template>
       <template v-slot:item.wr_title="{ item }">
         <v-btn
           :to="`/board/${table}/${item.wr_id}`"
           block
           plain
-          class="justify-start pl-0"
+          class="text-none px-0 justify-start basic-title"
         >
-          <v-icon
-            v-if="item.wr_dep > 0"
-            :style="{ 'padding-left': `${(item.wr_dep - 1) * 16}px` }"
-          >
-            mdi-subdirectory-arrow-right
-          </v-icon>
-          <div>{{ item.wr_title }}</div>
+          <div class="d-flex justify-start align-center">
+            <v-icon
+              v-if="item.wr_dep > 0"
+              :style="{ 'padding-left': `${(item.wr_dep - 1) * 16}px` }"
+            >
+              mdi-subdirectory-arrow-right
+            </v-icon>
+
+            <div
+              class="text-truncate"
+              :style="{
+                'max-width': `calc(100% - 20px - ${
+                  item.wr_dep > 0 ? (item.wr_dep - 1) * 16 + 24 : 0
+                }px)`,
+              }"
+            >
+              {{ item.wr_title }}
+            </div>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attr }">
+                <v-chip
+                  v-on="on"
+                  v-bind="attr"
+                  x-small
+                  label
+                  color="green"
+                  class="px-1 ml-1"
+                >
+                  {{ item.replys }}
+                </v-chip>
+              </template>
+              <span>댓글수 : {{ item.replys }}</span>
+            </v-tooltip>
+          </div>
         </v-btn>
+      </template>
+
+      <!-- v:slot == # 같은 문법 -->
+      <template #item.wr_createat="{ item }">
+        <display-time :time="item.wr_createat" />
       </template>
     </v-data-table>
   </v-container>
@@ -43,11 +79,13 @@
 <script>
 import qs from "qs";
 import { deepCopy } from "../../../../../util/lib";
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import SearchField from "../../../../components/layout/SearchField.vue";
 import CateSelect from "./component/CateSelect.vue";
+import DisplayTime from "./component/DisplayTime.vue";
+
 export default {
-  components: { SearchField, CateSelect },
+  components: { SearchField, CateSelect, DisplayTime },
   name: "BasicList",
   props: {
     config: Object,
@@ -80,10 +118,10 @@ export default {
         {
           text: "No",
           value: "no",
-          align: "start",
+          align: "left",
           sortable: false,
           searchable: false,
-          width: 60,
+          width: "80",
         },
         // { text: "GRP", value: "wr_grp" },
         // { text: "ORD", value: "wr_order" },
@@ -102,6 +140,7 @@ export default {
           align: "center",
           sortable: false,
           searchable: true,
+          width: "100",
         },
         {
           text: "작성일",
@@ -109,13 +148,15 @@ export default {
           align: "center",
           sortable: false,
           searchable: true,
+          width: "130",
         },
         {
           text: "조회수",
           value: "wr_view",
           align: "center",
           sortable: false,
-          searchable: true,
+          searchable: false,
+          width: "80",
         },
       ];
       if (this.config.bo_use_category) {
@@ -125,6 +166,7 @@ export default {
           align: "center",
           sortable: false,
           searchable: false,
+          width: "80",
         });
       }
       return headers;
@@ -135,7 +177,6 @@ export default {
         text: "내용",
         value: "wr_content",
       });
-      console.log("arr : ", arr);
       return arr;
     },
   },
@@ -220,12 +261,13 @@ export default {
       if (this.$ssrContext) {
         headers.token = this.$ssrContext.token;
       }
-      console.log("query : ", query);
       await this.getBoardList({ vm: this, query, headers });
+    },
+    getNo(index) {
+      const { page, itemsPerPage } = this.options;
+      const { totalItems } = this;
+      return totalItems - (page - 1) * itemsPerPage - index;
     },
   },
 };
 </script>
-
-<style>
-</style>

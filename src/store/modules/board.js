@@ -4,7 +4,7 @@ import axios from 'axios';
 export const state = () => ({
     config: null,
     list: [],
-    totlaItems: 0,
+    totalItems: 0,
     read: null,
 });
 
@@ -41,7 +41,6 @@ export const actions = {
         }
         axiosToken.axiosSource = axios.CancelToken.source();
 
-        console.log('query : ', query);
         try {
             const data = await $axios.get(
                 `/api/board/list/${table}?${query}`,
