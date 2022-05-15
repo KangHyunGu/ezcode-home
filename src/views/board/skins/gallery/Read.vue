@@ -1,9 +1,9 @@
 <template>
   <div>
-    Galleryread
-    <v-btn :to="`/gallery/${table}`">목록</v-btn>
-    <v-btn :to="`/gallery/${table}?act=write`">쓰기</v-btn>
-    <v-btn :to="`/gallery/${table}/2`">읽기</v-btn>
+    Gallery Read
+    <v-btn :to="`/board/${table}`">목록</v-btn>
+    <v-btn :to="`/board/${table}?act=write`">쓰기</v-btn>
+    <v-btn :to="`/board/${table}/11`">읽기</v-btn>
   </div>
 </template>
 

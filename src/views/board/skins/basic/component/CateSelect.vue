@@ -1,11 +1,12 @@
 <template>
   <v-select
-    label="카테고리"
+   
+    label="카데고리"
     v-model="cateItem"
-    :items="items"
+		:items="items"
     @change="cateChange"
-    hide-details
-    dense
+		hide-details
+		dense
   ></v-select>
 </template>
 
@@ -35,7 +36,6 @@ export default {
       return [];
     },
   },
-
   methods: {
     cateChange() {
       const cate = this.cateItem == "전체" ? "" : this.cateItem;
@@ -43,8 +43,8 @@ export default {
         ...this.options,
         page: 1,
       };
-      options.stx.splice(1, 1, cate);
-      this.$emit("update:options", options);
+			options.stx.splice(1, 1, cate);
+			this.$emit("update:options", options);
     },
   },
 };

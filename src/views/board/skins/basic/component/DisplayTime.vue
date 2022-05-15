@@ -1,7 +1,9 @@
 <template>
   <v-tooltip top>
     <template v-slot:activator="{ on, attrs }">
-      <span v-on="on" v-bind="attrs"> {{ display }}</span>
+      <span v-on="on" v-bind="attrs">
+        {{ display }}
+      </span>
     </template>
     {{ formatTime }}
   </v-tooltip>

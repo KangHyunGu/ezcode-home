@@ -48,11 +48,11 @@
         <display-time :time="item.mb_create_at" />
       </template>
 
-      <template v-slot:item.mb_update_at="{ item }">
+			<template v-slot:item.mb_update_at="{ item }">
         <display-time :time="item.mb_update_at" />
       </template>
 
-      <template v-slot:item.mb_leave_at="{ item }">
+			<template v-slot:item.mb_leave_at="{ item }">
         <display-time v-if="item.mb_leave_at" :time="item.mb_leave_at" />
       </template>
 
@@ -96,7 +96,7 @@ import axios from "axios";
 import SearchField from "../../components/layout/SearchField.vue";
 import TooltipBtn from "../../components/etc/TooltipBtn.vue";
 import EzDialog from "../../components/etc/EzDialog.vue";
-import UserUpdateForm from "../../components/auth/UserUpdateForm.vue";
+import UserUpdateForm from "../../components/Auth/UserUpdateForm.vue";
 import { deepCopy } from "../../../util/lib";
 import DisplayId from "../../components/layout/DisplayId.vue";
 import DisplayName from "../../components/layout/DisplayName.vue";
@@ -115,7 +115,7 @@ export default {
     DisplayTime,
   },
   name: "admMember",
-  title: "회원 관리",
+	title : "회원 관리",
   data() {
     return {
       headersOrigin: [
@@ -190,7 +190,7 @@ export default {
       return this.headers.filter((item) => item.searchable);
     },
     headers() {
-      return this.options.type == "member"
+			return this.options.type == "member"
         ? this.headersOrigin.filter((item) => item.value != "mb_leave_at")
         : this.headersOrigin.filter((item) => item.value != "mb_update_at");
     },
@@ -265,8 +265,8 @@ export default {
         const data = await this.$axios.get(`/api/member?${query}`, {
           cancelToken: this.axiosSource.token,
         });
-        this.pushState();
-
+        
+				this.pushState();
         this.loading = false;
         this.pageReady = true;
         this.pageRouting = false;
@@ -316,9 +316,9 @@ export default {
         const idx = this.items.indexOf(this.curMember);
         this.items.splice(idx, 1, data);
         this.$toast.info(`${data.mb_name} 정보 수정 하였습니다.`);
-        // console.log(data);
-        // 소켓을 보내면 회원아이디 룸에
-        this.$socket.emit("member:admUpdate", data);
+				// console.log(data);
+				// 소켓을 보내면 회원아이디 룸에
+				this.$socket.emit("member:admUpdate", data);
         this.$refs.dialog.close();
       }
     },

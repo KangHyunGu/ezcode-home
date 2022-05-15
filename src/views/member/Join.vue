@@ -9,25 +9,26 @@
           :cbCheckId="checkId"
           :cbCheckEmail="checkEmail"
           @onSave="save"
-          :isLoading="isLoading"
+					:isLoading="isLoading"
         />
       </v-card-text>
     </v-card>
+		
   </div>
 </template>
 
 <script>
 import { mapActions } from "vuex";
-import SingUpForm from "../../components/auth/SingUpForm.vue";
+import SingUpForm from "../../components/Auth/SingUpForm.vue";
 export default {
   components: { SingUpForm },
   name: "Join",
   title: "회원가입",
-  data() {
-    return {
-      isLoading: false,
-    };
-  },
+	data() {
+		return {
+			isLoading: false,
+		}
+	},
   methods: {
     ...mapActions("user", ["duplicateCheck", "createMember"]),
     async checkId(id) {
@@ -43,13 +44,13 @@ export default {
     },
     async save(form) {
       this.isLoading = true;
-      const data = await this.createMember(form);
-      this.isLoading = false;
-      if (data) {
-        const mb_name = form.get("mb_name");
-        this.$toast.info(`${mb_name}님 회원가입 하셧습니다.`);
-        this.$router.push("/login");
-      }
+			const data = await this.createMember(form);
+			this.isLoading = false;
+			if(data) {
+				const mb_name = form.get('mb_name');
+				this.$toast.info(`${mb_name}님 회원가입 하셧습니다.`);
+				this.$router.push('/login');
+			}
     },
   },
 };

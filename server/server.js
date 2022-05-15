@@ -41,6 +41,7 @@ require('./plugins/pm2Bus');
 		next();
 	})
 
+
 	// 파비콘
 	app.use((req, res, next) => {
 		if (req.path.indexOf('favicon.ico') > -1) {
@@ -58,6 +59,14 @@ require('./plugins/pm2Bus');
 	app.use(fileUpload());
 	const cookieParser = require('cookie-parser');
 	app.use(cookieParser());
+
+	// 세션
+	const session = require('express-session');
+	app.use(session({
+		secret: siteConfig.SECRET_KEY, // 쿠기 변조 방지에 대한 해쉬
+		resave: true, // 세션을 언제나 저장하는지 여부
+		saveUninitialized: false, // 세상 저장 전 초기화 하지 않음
+	}));
 
 	// 글로벌 
 	global.MEMBER_PHOTO_PATH = path.join(__dirname, './upload/memberPhoto');

@@ -8,10 +8,10 @@
         </v-btn>
       </template>
       <v-card>
-        <v-sheet width="200">
-          <member-menu v-if="member" @open="openDialog" />
-          <no-member-menu v-else />
-        </v-sheet>
+				<v-sheet width="200">
+        <member-menu v-if="member" @open="openDialog" />
+        <no-member-menu v-else />
+				</v-sheet>
       </v-card>
     </v-menu>
     <v-tooltip bottom>
@@ -21,7 +21,7 @@
           <v-icon v-else>mdi-lightbulb-outline</v-icon>
         </v-btn>
       </template>
-      <span>{{ darkMode ? "밝은 테마" : "어두운 테마" }}</span>
+			<span>{{darkMode ? "밝은 테마" : "어두운 테마"}}</span>
     </v-tooltip>
 
     <v-dialog v-if="member" v-model="dialog" persistent max-width="500">
@@ -49,7 +49,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import UserUpdateForm from "../auth/UserUpdateForm.vue";
+import UserUpdateForm from "../Auth/UserUpdateForm.vue";
 import TooltipBtn from "../etc/TooltipBtn.vue";
 import DisplayAvatar from "./DisplayAvatar.vue";
 import MemberMenu from "./MemberMenu.vue";

@@ -5,17 +5,10 @@ const requireModule = require.context('.', true, /(Form|List|Read)\.vue$/, 'lazy
 const modules = {};
 
 requireModule.keys().forEach(filename => {
-    const moduleName = upperFirst(camelCase(filename.replace(/(\.\/|\.vue)/g, '')));
-    modules[moduleName] = () => requireModule(filename);
-
+		const moduleName = upperFirst(camelCase(filename.replace(/(\.\/|\.vue)/g, '')));
+		modules[moduleName] = () => requireModule(filename);
 });
 
-// Object
-// BasicForm: ƒ ()
-// BasicList: ƒ ()
-// BasicRead: ƒ ()
-// GalleryForm: ƒ ()
-// GalleryList: ƒ ()
-// GalleryRead: ƒ ()
+// console.log(modules);
 
 export default modules;

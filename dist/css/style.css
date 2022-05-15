@@ -1,74 +1,51 @@
 .v-application .list-group {
-  list-style: none;
-  padding-left: 0;
+	list-style: none;
+	padding-left: 0;
 }
 .list-group-item {
-  padding: 0;
-  display: flex;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-top: 8px;
+	padding: 0;
+	display: flex;
+	border : 1px solid #ccc;
+	border-radius: 5px;
+	margin-top:8px
 }
 
 .list-group-item .handle + div {
-  padding: 4px;
-  display: table;
-  width: 100%;
+	padding: 4px; 
+	display: table;
+	width: 100%;
 }
 .list-group-item .handle + div > div {
-  display: table-row;
-  width: 100%;
+	display:table-row;
+	width: 100%;
 }
 .list-group-item .handle + div > div + div > div {
-  border-top: 1px dashed #ccc;
+	border-top: 1px dashed #ccc;
 }
 .list-group-item .handle + div > div > div {
-  display: table-cell;
-  padding: 4px;
+	display: table-cell;
+	padding: 4px;
 }
-.list-group-item .handle + div > div > div:nth-child(1) {
-  width: 20%;
-}
-.list-group-item .handle + div > div > div:nth-child(2) {
-  width: auto;
-}
-.list-group-item .handle + div > div > div:nth-child(3) {
-  width: 32px;
-}
-.list-group-item .handle + div > div > div:nth-child(4) {
-  width: 36px;
-}
+.list-group-item .handle + div > div > div:nth-child(1) {width : 20%;}
+.list-group-item .handle + div > div > div:nth-child(2) {width : auto;}
+.list-group-item .handle + div > div > div:nth-child(3) {width : 32px;}
+.list-group-item .handle + div > div > div:nth-child(4) {width: 36px;}
 .list-group .client {
-  position: relative;
-  top: 5px;
-  left: 5px;
+	position: relative;
+	top: 5px;
+	left: 5px;
 }
 .list-group .comment {
-  font-size: 0.9em;
+	font-size: 0.9em;
 }
 
 /* 드레그 메뉴 */
-.menu-drag-container .menu-drag-item {
-  position: relative;
-}
-.menu-drag-container .menu-drag-item .icon {
-  display: none;
-}
-.menu-drag-container .menu-drag-subitem {
-  margin-left: 2rem;
-}
-.menu-drag-container .menu-drag-subitem .menu-drag-item .icon {
-  display: block;
-  position: absolute;
-  left: -1.75rem;
-  top: 1.5rem;
-}
-.menu-drag-container .handle {
-  cursor: grab;
-}
-.menu-drag-container .menu-drag-zone {
-  padding-bottom: 1rem;
-}
+.menu-drag-container .menu-drag-item {position: relative;}
+.menu-drag-container .menu-drag-item .icon {display: none;}
+.menu-drag-container .menu-drag-subitem {margin-left: 2rem;}
+.menu-drag-container .menu-drag-subitem .menu-drag-item .icon {display: block;position: absolute;left: -1.75rem;top: 1.5rem;}
+.menu-drag-container .handle {cursor: grab;}
+.menu-drag-container .menu-drag-zone {padding-bottom: 1rem;}
 
 /* Basic 게시판 */
 @media screen and (min-width: 600px) {
@@ -97,4 +74,4 @@
     display: block;
     max-width: calc(100vw - 120px);
   }
-} 
+}

@@ -6,13 +6,14 @@
         <cate-select :options.sync="options" />
       </v-sheet>
       <search-field :items="searchItems" :options.sync="options" class="ml-4" />
+
       <v-spacer />
       <v-btn :to="`/board/${table}?act=write`" color="primary">
         <v-icon left>mdi-pencil</v-icon>
         새글 작성
       </v-btn>
     </v-toolbar>
-    <!-- v-date-table -->
+
     <v-data-table
       :headers="headers"
       :items="items"
@@ -24,6 +25,7 @@
       <template v-slot:item.no="{ index }">
         {{ getNo(index) }}
       </template>
+
       <template v-slot:item.wr_title="{ item }">
         <v-btn
           :to="`/board/${table}/${item.wr_id}`"
@@ -38,7 +40,6 @@
             >
               mdi-subdirectory-arrow-right
             </v-icon>
-
             <div
               class="text-truncate"
               :style="{
@@ -50,10 +51,10 @@
               {{ item.wr_title }}
             </div>
             <v-tooltip top>
-              <template v-slot:activator="{ on, attr }">
+              <template v-slot:activator="{ on, attrs }">
                 <v-chip
                   v-on="on"
-                  v-bind="attr"
+                  v-bind="attrs"
                   x-small
                   label
                   color="green"
@@ -68,7 +69,6 @@
         </v-btn>
       </template>
 
-      <!-- v:slot == # 같은 문법 -->
       <template #item.wr_createat="{ item }">
         <display-time :time="item.wr_createat" />
       </template>
@@ -118,21 +118,23 @@ export default {
         {
           text: "No",
           value: "no",
-          align: "left",
+          align: "right",
           sortable: false,
           searchable: false,
           width: "80",
         },
-        // { text: "GRP", value: "wr_grp" },
-        // { text: "ORD", value: "wr_order" },
-        // { text: "DRP", value: "wr_dep" },
-        // { text: "RP", value: "wr_parent" },
+        // {text: "ID",value : 'wr_id'},
+        // {text: "GRP",value : 'wr_grp'},
+        // {text: "ORD",value : 'wr_order'},
+        // {text: "DEP",value : 'wr_dep'},
+        // {text: "PR",value : 'wr_parent'},
         {
           text: "제목",
           value: "wr_title",
           align: "start",
           sortable: false,
           searchable: true,
+          cellClass: "text-truncate",
         },
         {
           text: "작성자",
@@ -147,8 +149,8 @@ export default {
           value: "wr_createat",
           align: "center",
           sortable: false,
-          searchable: true,
-          width: "130",
+          searchable: false,
+          width: "123",
         },
         {
           text: "조회수",
@@ -194,7 +196,6 @@ export default {
   serverPrefetch() {
     return this.fetchData();
   },
-
   created() {
     this.options = this.initOptions();
   },
@@ -204,7 +205,6 @@ export default {
   destroyed() {
     window.removeEventListener("popstate", this.routeChange);
   },
-
   methods: {
     ...mapActions("board", ["getBoardList"]),
     initOptions() {
@@ -219,7 +219,7 @@ export default {
       return options;
     },
     pushState() {
-      console.log("PageRouting", this.pageRouting);
+      // console.log("PageRouting", this.pageRouting);
       if (!this.pageRouting) {
         const opt = {
           page: this.options.page,
@@ -243,20 +243,16 @@ export default {
     },
     getPayload() {
       const payload = deepCopy(this.options);
-      console.log("payload:", payload);
-      // 리플이 아닌 목록
+      // 리플이 아닌 목록 검색
       payload.stf.push("wr_reply");
       payload.stc.push("eq");
       payload.stx.push("0");
-
-      // TODO : 카테고리 별로도 검색
+      // TODO : 카데고리 별로도 검색
       return payload;
     },
     async fetchData() {
       const payload = this.getPayload();
       const query = qs.stringify(payload);
-
-      // SSR로 구동시 인증이 필요 할 경우
       const headers = {};
       if (this.$ssrContext) {
         headers.token = this.$ssrContext.token;

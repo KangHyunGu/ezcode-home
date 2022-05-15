@@ -4,9 +4,10 @@
 
 <script>
 import upperFirst from "lodash/upperFirst";
-import { mapGetters, mapMutations, mapState, mapActions } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import SKINS from "./skins";
 import BoardError from "./BoardError.vue";
+
 export default {
   components: { ...SKINS, BoardError },
   name: "Board",
@@ -73,19 +74,16 @@ export default {
   watch: {
     table() {
       // this.config = null;
-      // this.fetchConfig();
       this.getBoardConfig(this.table);
     },
   },
-  serverPrefetch() {
-    return this.getBoardConfig(this.table);
-  },
+	serverPrefetch() {
+		return this.getBoardConfig(this.table);
+	},
   mounted() {
     // console.log(this.pathMatch, this.table, this.wr_id, this.action);
     // this.fetchConfig();
-
-    //최포 CSR로 호출 할 때
-    if (!this.config) {
+    if (!this.config) { 
       this.getBoardConfig(this.table);
     }
   },
@@ -96,4 +94,4 @@ export default {
 </script>
 
 <style>
-</style> 
+</style>

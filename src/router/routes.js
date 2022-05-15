@@ -1,4 +1,4 @@
-import Home from '../views/Home.vue'
+import Home from '../views/Home.vue';
 
 const routes = [
   {
@@ -9,52 +9,52 @@ const routes = [
   {
     path: '/about',
     name: 'About',
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+  	component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
-  {
+	{
     path: '/login',
     name: 'NoAuthLogin',
-    component: () => import(/* webpackChunkName: "login" */ '../views/member/Login.vue')
+  	component: () => import(/* webpackChunkName: "login" */ '../views/member/Login.vue')
   },
-  {
+	{
     path: '/join',
     name: 'NoAuthJoin',
-    component: () => import(/* webpackChunkName: "join" */ '../views/member/Join.vue')
+  	component: () => import(/* webpackChunkName: "join" */ '../views/member/Join.vue')
   },
-  {
+	{
     path: '/modifyPassword/:hash',
     name: 'NoAuthModifyPassword',
-    component: () => import(/* webpackChunkName: "modifyPassword" */ '../views/member/ModifyPassword.vue')
+  	component: () => import(/* webpackChunkName: "modifyPassword" */ '../views/member/ModifyPassword.vue')
   },
-  {
+	{
     path: '/adm/config',
     name: 'AdmConfig',
-    component: () => import(/* webpackChunkName: "admConfig" */ '../views/admin/Config.vue')
+  	component: () => import(/* webpackChunkName: "admConfig" */ '../views/admin/Config.vue')
   },
-  {
+	{
     path: '/adm/member',
     name: 'AdmMember',
-    component: () => import(/* webpackChunkName: "admMember" */ '../views/admin/Member.vue')
+  	component: () => import(/* webpackChunkName: "admMember" */ '../views/admin/Member.vue')
   },
-  {
+	{
     path: '/adm/menu',
     name: 'AdmMenu',
-    component: () => import(/* webpackChunkName: "admMenu" */ '../views/admin/Menu.vue')
+  	component: () => import(/* webpackChunkName: "admMenu" */ '../views/admin/Menu.vue')
   },
-  {
+	{
     path: '/adm/board/*',
     name: 'AdmBoard',
-    component: () => import(/* webpackChunkName: "admBoard" */ '../views/admin/BoardRenderer.vue')
+  	component: () => import(/* webpackChunkName: "admBoard" */ '../views/admin/BoardRenderer.vue')
   },
-  {
+	{
     path: '/board/*',
     name: 'Board',
-    component: () => import(/* webpackChunkName: "Board" */ '../views/board/Board.vue')
+  	component: () => import(/* webpackChunkName: "board" */ '../views/board/Board.vue')
   },
-  {
+	{
     path: '*',
     name: 'Error',
-    component: () => import(/* webpackChunkName: "error" */ '../views/Error.vue')
+  	component: () => import(/* webpackChunkName: "error" */ '../views/Error.vue')
   },
 ]
 

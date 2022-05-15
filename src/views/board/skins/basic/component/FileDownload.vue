@@ -6,8 +6,8 @@
       block
       :disabled="!access.download"
       :href="`/api/board/download/${table}/${file.bf_name}?src=${file.bf_src}`"
-      target="_blank"
-      class="mt-1 text-none"
+			target="_blank"
+			class="mt-1 text-none"
     >
       <v-icon left>mdi-download</v-icon>
       {{ file.bf_name }}
@@ -32,4 +32,4 @@ export default {
 </script>
 
 <style>
-</style> 
+</style>

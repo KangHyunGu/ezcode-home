@@ -138,21 +138,20 @@ const sqlHelper = {
 	},
 	InsertArray(table, datas) {
 		let sql;
-		let prepare;
+		let prepare; // (?,?,?)
 		for (const i in datas) {
 			const data = datas[i];
 			const keys = Object.keys(data);
-			if (i == 0) {
+			if(i == 0) {
 				sql = sqlHelper.Insert(table, data);
 				prepare = new Array(keys.length).fill('?').join(', ');
 			} else {
 				sql.query += `, (${prepare})`;
-				for (const key of keys) {
+				for(const key of keys) {
 					sql.values.push(data[key]);
 				}
 			}
 		}
-
 		return sql;
 	},
 	Update(table, data, where) {

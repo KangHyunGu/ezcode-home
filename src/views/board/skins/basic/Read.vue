@@ -16,14 +16,14 @@
         </v-toolbar>
       </v-card-title>
       <v-card-text>
-        <ssr-renderar>
+        <ssr-renderer>
           <template>
             <ez-tiptap :editable="false" v-model="item.wr_content" />
           </template>
           <template v-slot:server>
             <div v-html="item.wr_content"></div>
           </template>
-        </ssr-renderar>
+        </ssr-renderer>
       </v-card-text>
 
       <v-card-text>
@@ -35,12 +35,12 @@
           :table="table"
           :item="item"
           class="d-flex justify-center"
-          :btnProps="{ tile: true, small: true}"
+          :btnProps="{ tile: true, small: true }"
           :icon="{
             good: 'mdi-thumb-up',
             bad: 'mdi-thumb-down',
           }"
-        /> 
+        />
       </v-card-text>
 
       <v-card-text>
@@ -49,15 +49,27 @@
 
       <v-card-actions>
         <v-col cols="4" class="text-no-wrap">
-         <!-- 수정 -->
-         <board-button
-          v-if="isModify == 'MODIFY'"
-          color="info"
-          :to="`/board/${table}/${item.wr_id}?act=write`"
-          label="수정"
-          icon="mdi-pencil"
-        />
+          <!-- 수정 -->
+          <board-button
+            v-if="isModify == 'MODIFY'"
+            color="info"
+            :to="`/board/${table}/${item.wr_id}?act=write`"
+            label="수정"
+            icon="mdi-pencil"
+          />
           <!-- TODO: 비회원 계시물 수정 버튼 -->
+          <modify-button
+            v-if="isModify == 'NO_MEMBER'"
+            color="info"
+            :table="table"
+            :wr_id="item.wr_id"
+            label="수정"
+            @onValid="modifyItem"
+          >
+            <v-icon left>mdi-pencil</v-icon>
+            수정
+          </modify-button>
+
           <!-- // 수정 -->
 
           <!-- 삭제 -->
@@ -68,13 +80,22 @@
             @click="deleteItem"
             label="삭제"
             icon="mdi-delete"
-            :loading="deleteLoading"
-        />
+            :loading="delelteLoading"
+          />
           <!-- TODO: 비회원 계시물 삭제 버튼 -->
           <!-- // 삭제 -->
-        </v-col>          
+        </v-col>
 
-      <v-col cols="4" class="text-right text-no-wrap">
+        <v-col cols="4" class="text-center text-no-wrap">
+          <board-button
+            :to="`/board/${table}`"
+            color="accent"
+            label="목록"
+            icon="mdi-menu"
+          />
+        </v-col>
+
+        <v-col cols="4" class="text-right text-no-wrap">
           <board-button
             v-if="access.reply"
             color="secondary"
@@ -92,10 +113,10 @@
             icon="mdi-pencil"
           />
         </v-col>
+      </v-card-actions>
 
-
-        </v-card-actions>
-      </v-card-text>
+      <!-- 댓글 목록 -->
+      <comment-list :id="item.wr_id" :table="table" :access="access" />
     </v-card>
   </v-container>
 </template>
@@ -103,21 +124,25 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { LV } from "../../../../../util/level";
-import SsrRenderar from "../../../../components/util/SsrRenderar.vue";
+import SsrRenderer from "../../../../components/util/SsrRenderer.vue";
 import DisplayTime from "./component/DisplayTime.vue";
 import TagView from "./component/TagView.vue";
 import FileDownload from "./component/FileDownload.vue";
 import BoardButton from "./component/boardButton.vue";
 import DisplayGood from "./component/DisplayGood.vue";
+import ModifyButton from "./component/ModifyButton.vue";
+import CommentList from "./component/CommentList.vue";
 
 export default {
   components: {
-    SsrRenderar,
+    SsrRenderer,
     DisplayTime,
     TagView,
     FileDownload,
     BoardButton,
     DisplayGood,
+    ModifyButton,
+    CommentList,
   },
   name: "BasicRead",
   props: {
@@ -127,7 +152,7 @@ export default {
   },
   data() {
     return {
-      deleteLoading: false,
+      delelteLoading: false,
     };
   },
   computed: {
@@ -141,12 +166,10 @@ export default {
     },
     isModify() {
       if (this.member) {
-        // 게시물 작성자이거나 최고 관리자 이면
         if (this.member.mb_id == this.item.mb_id || this.GRANT >= LV.SUPER) {
           return "MODIFY";
         }
       } else if (this.item.mb_id == 0) {
-        // 비회원일때
         return "NO_MEMBER";
       }
       return "";
@@ -164,19 +187,16 @@ export default {
     if (!this.item) {
       this.fetchData();
     }
-
     console.log(this.$vuetify);
   },
   destroyed() {
     this.SET_READ(null);
   },
-
   methods: {
     ...mapMutations("board", ["SET_READ"]),
     ...mapActions("board", ["getBoardRead"]),
     async fetchData() {
-      console.log("FETCH : ", this.id);
-      // SSR로 구동시 인증이 필요 할 경우
+      console.log("FETCH", this.id);
       const headers = {};
       if (this.$ssrContext) {
         headers.token = this.$ssrContext.token;
@@ -189,17 +209,27 @@ export default {
     },
     async deleteItem(token) {
       this.delelteLoading = true;
+
       const result = await this.$ezNotify.confirm(
         "게시물을 삭제 하시겠습니까?",
         "게시물 삭제",
         { icon: "mdi-alert" }
       );
+
       if (result) {
         const data = await this.$axios.delete(
           `/api/board/${this.table}/${this.item.wr_id}?token=${token}`
         );
       }
+
       this.delelteLoading = false;
+    },
+    modifyItem(token) {
+      // /board/${table}/${item.wr_id}?act=write
+      console.log("token : ", token);
+      this.$router.push(
+        `/board/${this.table}/${this.item.wr_id}?act=write&token=${token}`
+      );
     },
   },
 };

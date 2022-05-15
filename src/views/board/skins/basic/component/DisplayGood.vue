@@ -33,6 +33,7 @@
 
 <script>
 import { mapState } from "vuex";
+
 export default {
   name: "DisplayGood",
   props: {
@@ -89,15 +90,15 @@ export default {
           { bg_flag }
         );
       }
-      if (data) {
-        this.goodFlag = data.goodFlag;
-        this.good = data.good;
-        this.bad = data.bad;
-      }
+			if(data) {
+				this.goodFlag = data.goodFlag;
+				this.good = data.good;
+				this.bad = data.bad
+			}
     },
   },
 };
 </script>
 
 <style>
-</style> 
+</style>
