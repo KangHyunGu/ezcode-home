@@ -1,0 +1,57 @@
+* pm2 process간 통신
+
+pm2 start ecosystem.config.js --watch
+--watch 변경 감지 처리
+
+
+pm2 javascript API 추가
+
+yarn add pm2
+
+문서 참조 : https://pm2.keymetrics.io/docs/usage/pm2-api/
+
+
+
+* Sorker io
+
+설치
+  yarn add socker.io
+
+  1. server
+    server.js 
+    // plugin/socket 폴더 생성
+    // plugin/socket/index.js 파일 생성
+    // plugin/socket/index.js
+      const {Server} = require('socket.io')
+
+      module.exports = function(webServer){
+          //socket Io 생성
+          const io = new Server(webServer);
+
+          //socket Io 연결 될 경우
+          io.on('connection', (socket) => {
+              console.log('a user connected ' + socket.id);
+          })
+      } 
+
+    client
+    //  src/plugins-client/socket.js 생성
+    
+
+    // socket Io 지정
+  	const socket = require('./plugins/socket')
+	  socket(webServer);
+
+
+
+    socket io 규칙
+    socket.join(roomName) : roomName이란 이름으로 연결 된 사용자 join
+    socket.leave(roomName) : roomName이란 해당되는 사용자 제외
+    io.emit : 모든 사용자
+    socket.broadcast.emit : 자신을 제외한 모든 사용자
+    io.to('roomtest').emit : roomtest 연결 된 모든 사용자
+    socket.to('roomtest').emit('room:msg', {msg}) : roomtest 연결된 자신을 제외한 모든 사용자
+
+  
+문서 참조 : https://socket.io/docs/v4/
+

@@ -1,0 +1,49 @@
+1. vue-cookies 설치
+    - yarn add vue-cookies
+
+2. 데이터 쿠키 Set
+    - import VueCookies from "vue-cookies";
+    //개발자 모드 Application -> Cookies 확인 가능
+    VueCookies.set('token', data.token)
+
+3. token 값 Decode 확인
+    https://jwt.io/
+    (Encoded 해당 토큰 값을 넣을시 Decode 확인 가능)
+
+4. Axios
+    - import VueCookies from 'vue-cookies'
+    - plugin 내 _axios.interceptors.request.use(function(config)) 내 추가
+    // 토근이 존재 할 경우 헤더에 넣어 보낸다.
+    if(VueCookies.isKey('token')){
+      config.headers.Authorization = VueCookies.get('token')
+    }
+
+    -_axios.interceptors.request.use(function(config))은 서버로 요청하기 전의 행위
+
+5. passport-jwt 설치
+    - yarn add passport-jwt
+    - passport.js
+    const {Strategy : JWTStrategy, ExtractJwt} = require('passport-jwt')
+
+
+
+* NodeJS 무중단 서비스
+    - pm2 설치
+        npm i pm2 -g
+    - root 폴더 내 ecosystem.config.js 파일 생성 후 아래와 같이 작성
+        module.exports = {
+            apps : [{
+                name : 'ezhome',
+                script : './server/server.js',
+                instances : 0,
+                scale : 2,
+                exec_mode : 'cluster',
+                wait_ready : true,
+                listen_timeout : 60000,
+                kill_timeout : 5000,
+            }]
+        }
+    - server/server.js 파일 내 추가
+    
+
+
