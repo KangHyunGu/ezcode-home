@@ -57,7 +57,7 @@
             label="수정"
             icon="mdi-pencil"
           />
-          <!-- TODO: 비회원 계시물 수정 버튼 -->
+          <!-- 비회원 계시물 수정 버튼 -->
           <modify-button
             v-if="isModify == 'NO_MEMBER'"
             color="info"
@@ -82,7 +82,19 @@
             icon="mdi-delete"
             :loading="delelteLoading"
           />
-          <!-- TODO: 비회원 계시물 삭제 버튼 -->
+          <!-- 비회원 계시물 삭제 버튼 -->
+          <modify-button
+            v-if="isModify == 'NO_MEMBER'"
+            color="error"
+            class="ml-2"
+            :table="table"
+            :wr_id="item.wr_id"
+            label="삭제"
+            @onValid="deleteItem"
+          >
+            <v-icon left>mdi-delete</v-icon>
+            삭제
+          </modify-button>
           <!-- // 삭제 -->
         </v-col>
 
@@ -208,6 +220,7 @@ export default {
       });
     },
     async deleteItem(token) {
+      console.log("token : ", token);
       this.delelteLoading = true;
 
       const result = await this.$ezNotify.confirm(
@@ -220,6 +233,10 @@ export default {
         const data = await this.$axios.delete(
           `/api/board/${this.table}/${this.item.wr_id}?token=${token}`
         );
+        if (data) {
+          this.$toast.info(`${data}개의 게시물을 삭제하였습니다.`);
+          this.$router.push(`/board/${this.table}`);
+        }
       }
 
       this.delelteLoading = false;

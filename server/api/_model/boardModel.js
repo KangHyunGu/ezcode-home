@@ -10,6 +10,7 @@ const sqlHelper = require('../../../util/sqlHelper');
 const TABLE = require('../../../util/TABLE');
 const moment = require('../../../util/moment');
 const { getSummary } = require('../../../util/lib');
+const { LV } = require('../../../util/level');
 
 const boardModel = {
 	async getConfig(bo_table) {
@@ -82,23 +83,31 @@ const boardModel = {
 	},
 	async writeInsert(bo_table, data, files) {
 		// 에디터에서 업로드 한 이미지 목록
-		const upImages = JSON.parse(data.upImages);
-		delete data.upImages;
+		let upImages = [];
+		if (data.upImages) {
+			upImages = JSON.parse(data.upImages);
+			delete data.upImages;
+		}
 		// 태그 목록
-		const wrTags = JSON.parse(data.wrTags);
-		delete data.wrTags;
+		let wrTags = [];
+		if (data.wrTags) {
+			wrTags = JSON.parse(data.wrTags);
+			delete data.wrTags;
+		}
 		// 게시판 테이블 명
 		const table = `${TABLE.WRITE}${bo_table}`;
 
 		// 게시판 글에 대한 그룹,정렬,깊이
 		if (data.wr_parent == 0) { // 새글
-			const grpQuery = `SELECT MAX(wr_grp) AS wr_grp FROM ${table}`;
+			const grpQuery = `SELECT MAX(wr_grp) AS wr_grp FROM ${table} WHERE wr_reply=${data.wr_reply}`;
 			const [[{ wr_grp }]] = await db.execute(grpQuery);
 			data.wr_grp = wr_grp ? wr_grp + 1 : 1;
 			data.wr_order = 0;
 			data.wr_dep = 0;
 		} else { // 답글
-			const grpQuery = `SELECT wr_grp, wr_order, wr_dep FROM ${table} WHERE wr_id=${data.wr_parent}`;
+			console.log('data : ', data);
+			const grpQuery = `SELECT wr_grp, wr_order, wr_dep FROM ${table} WHERE 
+			wr_id=${data.wr_parent}`;
 			const [[parent]] = await db.execute(grpQuery);
 			data.wr_grp = parent.wr_grp;
 			data.wr_order = parent.wr_order + 1;
@@ -142,10 +151,12 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 	async writeUpdate(bo_table, wr_id, data, files) {
 		const table = `${TABLE.WRITE}${bo_table}`;
 		delete data.wr_id;
-
 		// 기존 첨부파일
-		const wrFiles = JSON.parse(data.wrFiles);
-		delete data.wrFiles;
+		let wrFiles = [];
+		if (data.wrFiles) {
+			wrFiles = JSON.parse(data.wrFiles);
+			delete data.wrFiles;
+		}
 
 		// 기존 첨부파일에서 삭제가 참인거
 		for (const wrFile of wrFiles) {
@@ -164,9 +175,13 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		}
 
 		// 에디터에서 이미지 처리
-		const upImages = JSON.parse(data.upImages).concat(JSON.parse(data.wrImgs));
-		delete data.upImages;
-		delete data.wrImgs;
+		let upImages = [];
+		if (data.upImages && data.wrImgs) {
+			upImages = JSON.parse(data.upImages).concat(JSON.parse(data.wrImgs));
+			delete data.upImages;
+			delete data.wrImgs;
+		}
+
 		await boardModel.clearImages(bo_table, wr_id, data.wr_content, upImages);
 
 		// 데이터 정리
@@ -179,6 +194,7 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		}
 		delete data.wr_password; // 비밀번호 삭제
 		data.wr_updateat = moment().format('LT');
+
 		data.wr_summary = getSummary(data.wr_content, 250);
 		delete data.good;
 		delete data.bad;
@@ -186,8 +202,12 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		delete data.goodFlag;
 
 		// 태그
-		const wrTags = JSON.parse(data.wrTags);
-		delete data.wrTags;
+		let wrTags = [];
+		if (data.wrTags) {
+			wrTags = JSON.parse(data.wrTags);
+			delete data.wrTags;
+		}
+
 		await tagModel.registerTags(bo_table, wr_id, wrTags);
 
 		const sql = sqlHelper.Update(table, data, { wr_id });
@@ -217,6 +237,15 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		const sql = sqlHelper.SelectLimit(table, options);
 		// console.log(sql);
 		const [items] = await db.execute(sql.query, sql.values);
+
+		// 댓글 좋아요 및 싫어요...
+		for (const item of items) {
+			if (member) {
+				item.goodFlag = await goodModel.getFlag(bo_table, item.wr_id, member.mb_id)
+			} else {
+				item.goodFlag = 0;
+			}
+		}
 		const [[{ totalItems }]] = await db.execute(sql.countQuery, sql.values);
 
 		return { items, totalItems };
@@ -274,6 +303,59 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		}, ['COUNT(*) AS cnt']);
 		const [[{ cnt }]] = await db.execute(sql.query, sql.values);
 		return cnt;
+	},
+	async deleteItem(bo_table, wr_id, member) {
+		let delCnt = 0;
+		const table = `${TABLE.WRITE}${bo_table}`;
+		// 답글 목록을 가져오고
+		const cSql = sqlHelper.SelectSimple(table, { wr_parent: wr_id }, ['wr_id']);
+		const [children] = await db.execute(cSql.query, cSql.values);
+		// 최고관리자 전체 삭제
+		if (member && member.mb_level >= LV.SUPER) {
+			// 게시글 내 답글내역 전체 삭제
+			for (const child of children) {
+				delCnt += await boardModel.deleteItem(bo_table, child.wr_id, member);
+			}
+			delCnt += await boardModel.removeItem(bo_table, wr_id);
+		} else {
+			// 그렇지 않을 경우 
+			if (children.length == 0) { // 답글 내역이 존재하지 않는다면...
+				// 코멘트가 있으면 error
+				const rSql = sqlHelper.SelectSimple(table, { wr_reply: wr_id }, ['wr_id']);
+				const [commentList] = await db.execute(rSql.query, rSql.values);
+				if (commentList.length == 0) {
+					// 삭제
+					delCnt += await boardModel.removeItem(bo_table, wr_id);
+				} else {
+					throw new Error('댓글 내역이 있어 삭제 할 수 없습니다.');
+				}
+			} else {
+				throw new Error('답글 내역이 있어 삭제 할 수 없습니다.');
+			}
+		}
+		return delCnt;
+	},
+	async removeItem(bo_table, wr_id) {
+		const table = `${TABLE.WRITE}${bo_table}`
+		// 태그 목록 삭제
+		await tagModel.deleteTags(bo_table, wr_id);
+		// 관련 파일 삭제
+		const fsql = sqlHelper.SelectLimit(TABLE.BOARD_FILE, {
+			bo_table, wr_id
+		}, ['bf_id', 'bf_src']);
+		const [files] = await db.execute(fsql.query, fsql.values);
+		for (const file of files) {
+			await boardModel.removeFile(bo_table, file);
+		}
+		// 댓글 있으면 삭제
+		const cSql = sqlHelper.DeleteSimple(table, { wr_reply: wr_id });
+		await db.execute(cSql.query, cSql.values);
+
+		// 게시글 삭제
+		const sql = sqlHelper.DeleteSimple(table, { wr_id });
+		const [rows] = await db.execute(sql.query, sql.values);
+
+		return rows.affectedRows;
 	}
 };
 
