@@ -75,8 +75,8 @@
           <!-- 삭제 -->
           <board-button
             v-if="isModify == 'MODIFY'"
-            color="error"
             class="ml-2"
+            color="error"
             @click="deleteItem"
             label="삭제"
             icon="mdi-delete"
@@ -85,8 +85,8 @@
           <!-- 비회원 계시물 삭제 버튼 -->
           <modify-button
             v-if="isModify == 'NO_MEMBER'"
-            color="error"
             class="ml-2"
+            color="error"
             :table="table"
             :wr_id="item.wr_id"
             label="삭제"
@@ -198,14 +198,15 @@ export default {
   mounted() {
     if (!this.item) {
       this.fetchData();
+    } else {
+      this.viewUp();
     }
-    console.log(this.$vuetify);
   },
   destroyed() {
     this.SET_READ(null);
   },
   methods: {
-    ...mapMutations("board", ["SET_READ"]),
+    ...mapMutations("board", ["SET_READ", "VIEW_UP"]),
     ...mapActions("board", ["getBoardRead"]),
     async fetchData() {
       console.log("FETCH", this.id);
@@ -218,6 +219,39 @@ export default {
         id: this.id,
         headers,
       });
+
+      if (!this.$ssrContext) {
+        this.viewUp();
+      }
+    },
+    async viewUp() {
+      const today = this.$moment().format("L");
+      console.log(
+        'window.localStorage.getItem("view") : ',
+        window.localStorage.getItem("view")
+      );
+      const view = JSON.parse(window.localStorage.getItem("view")) || {};
+      const keys = Object.keys(view);
+      for (const key of keys) {
+        if (key != today) {
+          //오늘이 아니면 제거
+          delete view[key];
+        }
+      }
+      if (!view[today]) {
+        view[today] = {};
+      }
+      const curWrite = `${this.table}_${this.id}`;
+      if (!view[today][curWrite]) {
+        // 조회수 증가
+        view[today][curWrite] = true;
+        // 서버에 증가 요청
+        await this.$axios.put(`/api/board/view/${this.table}/${this.id}`);
+        // Mutation view 증가
+        this.VIEW_UP();
+
+        window.localStorage.setItem("view", JSON.stringify(view));
+      }
     },
     async deleteItem(token) {
       console.log("token : ", token);
