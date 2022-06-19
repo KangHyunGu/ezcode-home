@@ -77,17 +77,23 @@ export default {
       this.getBoardConfig(this.table);
     },
   },
-	serverPrefetch() {
-		return this.getBoardConfig(this.table);
-	},
+  serverPrefetch() {
+    return this.getBoardConfig(this.table);
+  },
   mounted() {
     // console.log(this.pathMatch, this.table, this.wr_id, this.action);
     // this.fetchConfig();
-    if (!this.config) { 
+    if (!this.config) {
       this.getBoardConfig(this.table);
     }
   },
+  destroyed() {
+    this.SET_CONFIG(null);
+    this.SET_LIST({ items: [], totalItems: 0 });
+    this.SET_READ(null);
+  },
   methods: {
+    ...mapMutations("board", ["SET_CONFIG", "SET_LIST", "SET_READ"]),
     ...mapActions("board", ["getBoardConfig"]),
   },
 };

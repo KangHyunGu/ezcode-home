@@ -79,7 +79,7 @@
 <script>
 import qs from "qs";
 import { deepCopy } from "../../../../../util/lib";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 import SearchField from "../../../../components/layout/SearchField.vue";
 import CateSelect from "./component/CateSelect.vue";
 import DisplayTime from "./component/DisplayTime.vue";
@@ -204,9 +204,11 @@ export default {
   },
   destroyed() {
     window.removeEventListener("popstate", this.routeChange);
+    this.SET_LIST({ items: [], totalItems: 0 });
   },
   methods: {
     ...mapActions("board", ["getBoardList"]),
+    ...mapMutations("board", ["SET_LIST"]),
     initOptions() {
       const { query } = this.$route;
       const options = {
