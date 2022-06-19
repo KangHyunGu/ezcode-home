@@ -6,6 +6,7 @@ export const state = () => ({
 	list: [],
 	totalItems: 0,
 	read: null,
+	latest: {}, //table명, items
 });
 
 export const mutations = {
@@ -23,7 +24,10 @@ export const mutations = {
 		if (state.read) {
 			state.read.wr_view++;
 		}
-	}
+	},
+	SET_LATEST(state, { table, payload }) {
+		Vue.set(state.latest, table, payload);
+	},
 }
 
 let axiosToken = {
@@ -69,5 +73,15 @@ export const actions = {
 		if (data) {
 			commit('SET_READ', data);
 		}
-	}
+	},
+	async getLatest({ commit }, { table, limit }) {
+		const { $axios } = Vue.prototype;
+		const data = await $axios.get(`/api/board/latest/${table}?limit=${limit}`);
+		if (data) {
+			commit('SET_LATEST', { table, payload: data });
+		}
+		/*
+			latest : {table :{subject : '제목', items:[]}}
+		*/
+	},
 }
