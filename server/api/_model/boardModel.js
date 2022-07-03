@@ -368,6 +368,28 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		const values = [wr_id];
 		const [rows] = await db.execute(query, values);
 		return rows.affectedRows;
+	},
+	async popupList(ignores) {
+		const table = `${TABLE.WRITE}popuoMng`;
+
+		if (ignores) {
+			ignores = ` wr_id NOT IN(${ignores}) AND `;
+		}
+
+		const query = `SELECT * FROM ${table} 
+						WHERE ${ignores} wr_9 = 1 
+						AND wr_2 <= NOW() 
+						AND wr_3 >= NOW()`;
+
+		const [items] = await db.execute(query);
+		//이미지 목록
+		for (const item of items) {
+			const files = await boardModel.getItemFiles('popuoMng', item.wr_id, item.wr_content);
+			item.wrImgs = files.wrImgs;
+			item.wrFiles = files.wrFiles;
+
+		}
+		return items;
 	}
 };
 

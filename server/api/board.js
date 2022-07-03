@@ -232,4 +232,10 @@ router.post(`/check/:bo_table/:wr_id`, async (req, res) => {
 	}
 })
 
+router.get('/popup-list', async (req, res) => {
+	const { ignores } = req.query;
+	const result = await modelCall(boardModel.popupList, ignores);
+	res.json(result);
+})
+
 module.exports = router;

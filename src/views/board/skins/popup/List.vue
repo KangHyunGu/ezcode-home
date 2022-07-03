@@ -53,6 +53,15 @@
       </template>
       <template #item.cmd="{ item }">
         <tooltip-btn
+          label="미리보기"
+          icon
+          color="accent"
+          @click="popupView(item)"
+        >
+          <v-icon>mdi-eye</v-icon>
+        </tooltip-btn>
+
+        <tooltip-btn
           label="수정"
           icon
           color="primary"
@@ -218,7 +227,7 @@ export default {
           align: "center",
           sortable: false,
           searchable: false,
-          width: "120",
+          width: "160",
         },
       ];
       if (this.config.bo_use_category) {
