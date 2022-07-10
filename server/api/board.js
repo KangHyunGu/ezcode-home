@@ -9,7 +9,7 @@ async function isModify(req, config, member, wrItem) {
 	console.log('config : ', config.bo_table);
 	let msg = '수정권한이 없습니다.';
 	if (member) {
-		if (config.bo_table == 'popuoMng' && member.mb_level >= LV.ADMIN) {
+		if (config.bo_table == 'popup' && member.mb_level >= LV.ADMIN) {
 			msg = '';
 		} else if (member.mb_level >= LV.SUPER || member.mb_id == wrItem.mb_id) {
 			msg = '';

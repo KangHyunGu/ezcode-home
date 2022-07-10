@@ -2,7 +2,7 @@
   <div>
     <popup-view
       v-for="(item, index) in items"
-      table="popuoMng"
+      table="popup"
       :item="item"
       :key="item.wr_id"
       :idx="index"

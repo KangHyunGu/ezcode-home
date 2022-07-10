@@ -370,7 +370,7 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		return rows.affectedRows;
 	},
 	async popupList(ignores) {
-		const table = `${TABLE.WRITE}popuoMng`;
+		const table = `${TABLE.WRITE}popup`;
 
 		if (ignores) {
 			ignores = ` wr_id NOT IN(${ignores}) AND `;
@@ -384,7 +384,7 @@ WHERE wr_reply=${data.wr_reply} AND wr_grp=${parent.wr_grp} AND wr_order >= ${da
 		const [items] = await db.execute(query);
 		//이미지 목록
 		for (const item of items) {
-			const files = await boardModel.getItemFiles('popuoMng', item.wr_id, item.wr_content);
+			const files = await boardModel.getItemFiles('popup', item.wr_id, item.wr_content);
 			item.wrImgs = files.wrImgs;
 			item.wrFiles = files.wrFiles;
 

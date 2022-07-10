@@ -49,9 +49,14 @@ export default {
           to: "/adm/board/list",
         },
         {
+          title: "내용 관리",
+          icon: "mdi-clipboard-text-multiple-outline",
+          to: "/board/contents",
+        },
+        {
           title: "팝업 관리",
           icon: "mdi-layers-triple-outline",
-          to: "/board/popuoMng",
+          to: "/board/popup",
         },
       ],
     };
